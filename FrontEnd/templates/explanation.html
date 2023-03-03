@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <!--
+        Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
+        the argument for the static folder and the name of the file itself need to be set.
+    -->
+    <title>Buck-cat - Explanation</title>
+</head>
+<body>
+    <div>
+        <h1>What's happening here?</h1>
+    </div>
+    <div>
+        <div>
+            <h2>
+                Introduction
+            </h2>
+        </div>
+        <div id="Introduction">
+            <p>
+                This page will explain how the buck-cat works. <br>
+                If you just want more cats you can go back <a href="/">here</a>!
+            </p>
+            <p>
+                I was challenged to create a certain environment in Amazon Web Service (AWS):
+            </p>
+            <p>
+                <ul>
+                    <li>Create two Virtual Machines (VMs, or Instances as they are called in AWS).</li>
+                    <li>Add a secrets manager (Key Management Server - KMS) and storage (S3).</li>
+                    <li>Make one instance accessible through the internet and the second inaccessible.</li>
+                </ul>
+            </p>
+            <p>
+                The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure.<br>
+                The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
+                <b>However</b>, it should be noted that the main goal of this little project is the environment and learning how to work with AWS, the application was a secondary goal, which is why this website or the code running it might seem a little bit sloppy.
+            </p>
+        </div>
+        <div>
+            <div>
+                <h2>How Does This Work</h2>
+            </div>
+            <div>
+                <h3>Overview</h3>
+            </div>
+            <div id="Overview">
+                <p>
+                    I realized the environment can work as an application with a Front-End Server (the VM accessible from the internet) and a Back-End Server (the VM inaccessible from the internet).<br>
+                    Only the Back-End server will be able to access the application's resources (the KMS and S3 bucket). <br>
+                </p>
+                <p>
+                    The general idea of the solution works as such:
+                </p>
+                <p>
+                    <img src="{{ solution_image }}">
+                </p>
+                <p>
+                    <ul>
+                        <li>User reaches the Front-End server from the internet.</li>
+                        <li>The Front-End server sends the user this web page.</li>
+                        <li>When the user clicks the "Generate Cat" button, the Front-End server opens a socket to the Back-End server.</li>
+                        <li>The Back-End server accepts the Front-End's connection, asks the S3 Cats Bucket (or Buck-Cat, if you will) for a temporary signed URL, and sends it back to the Front-End through the socket session.</li>
+                        <li>The Front-End server presents the image to the user by using the temporary URL.</li>
+                        <li>The images in the Buck-Cat are encrypted with a KMS Key which is held in KMS</li>
+                    </ul>
+                </p>
+            </div>
+            <div>
+                <h3>A Deeper Dive</h3>
+            </div>
+            <div>
+                <p>
+                    Now it's possible to look into each component indvidually, let's use this table:
+                </p>
+                <p>
+                    <table>
+                        <tr>
+                            <th>Front-End Server</th>
+                            <th>Back-End Server</th>
+                            <th>KMS</th>
+                            <th>Buck-Cat (S3)</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <ul>
+                                    <li>Runs Linux Ubuntu Server</li>
+                                    <li>Runs a container with an application written in Python, HTML and CSS:
+                                        <ul>
+                                            <li>Uses Flask Library for running the web application.</li>
+                                            <li>Connects to the Back-End with Python's Socket Library.</li>
+                                        </ul>
+                                    </li>
+                                    <li>Iterates through how many cats were watched and goes back to the start.</li>
+                                    <li>Sends to the Back-End Server which iteration of a cat to get to the URL for.</li>
+                                    <li>Is within a Front-End VPC (Virtual Private Cloud) that only allows HTTP inbound traffic front the internet and the socket's inbound and outbound traffic towards the Back-End.</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul>
+                                    <li>Runs Linux Ubuntu Server</li>
+                                    <li>Is assigned an IAM (AWS's Identity & Management) role that gives it access priviledges to a KMS key (that encrypts the images) and the buck-cat itself</li>
+                                    <li>Runs a container with an application written in Python:</li>
+                                    <ul>
+                                        <li>Uses the Boto3 Library (AWS SDK for Python)</li>
+                                        <li>Connects to the Front-End with Python's Socket Library.</li>
+                                    </ul>
+                                    <li>Iterates over the items in the Buck-Cat and lists their names.</li>
+                                    <li>Gets a request to get a certain iteration of a cat front the Front-End.</li>
+                                    <li>Asks the Buck-Cats for a signed URL that may be used for a limited amount of time.</li>
+                                    <li>AWS automatically decrpyts the cat picture when getting a request from the signed URL</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul>
+                                    <li>Holds the KMS key that is used to encrypt the cat pictures.</li>
+                                    <li>The KMS key is allowed for the IAM user used by the Back-End Server</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul>
+                                    <li>Hold the cats image files.</li>
+                                    <li>Has a policy that requires all files to be encrypted with the KMS key when uploaded.</li>
+                                    <li>Allow access to the IAM user to upload and download files (But not manage the Buck-Cat)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                </p>
+            </div>
+            <div>
+                <div>
+                    <h3>
+                        "Containing" the Bugs
+                    </h3>
+                </div>
+                <div>
+                    <p>
+                        During deployment, as the app was moved from the local development environment (a local Ubuntu VM) into a container in the respective EC2 Instance,
+                        there was a series of interesting bugs that had to be taken care of due to the change:
+                    </p>
+                    <p>
+                        <table>
+                            <tr>
+                                <th>Bug</th>
+                                <th>Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                            <tr>
+                                <td>The signing version and region were not accepted by AWS when generating a URL.</td>
+                                <td>
+                                    The development environment used a programmatic IAM user in order to get to the Buck-Cat and KMS Key,
+                                    the credentials are held within the AWS SDK config file (so they won't be kept in the code).<br>
+                                    When the program was moved into a container, it got the credentials through the IAM Role, which was applied on the EC2 instance in which it resides,
+                                    however, it seems that there's some kind of difference in the way the SDK reaches the credentials in this case.
+                                </td>
+                                <td>AWS's recommended signing version (s3v4) and the correct region were assigned in the boto3 client initalization in the code.</td>
+                            </tr>
+                            <tr>
+                                <td>The URL was always expired.</td>
+                                <td>Docker conainers default to the UTC timezone, even if the host machine is set to the correct time, this caused the links to be expired when shown in the web page.</td>
+                                <td>Changes in the dockerfiles were made in order to build the Docker image with the correct timezone settings.</td>
+                            </tr>
+                            <tr>
+                                <td>The URL was not complete, resulting in denied access.</td>
+                                <td>The URLs became extremely long due to the signing method and the change of the role, the URLs didn't pass completely in the TCP sessions between BackEnd and FrontEnd</td>
+                                <td>Added a while loop in FrontEnd to listen to the message in the session from BackEnd until it's empty.</td>
+                            </tr>
+                        </table>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+        <div id="Summary">
+            <div>
+                <h2>Summary</h2>
+            </div>
+            <div>
+                <p>
+                    <ul>
+                        <li>This project runs an application deployed on AWS, the goal of the project was to start to get familiar with the AWS environment.</li>
+                        <li>As an extra challenge, this application was developed to run on it.</li>
+                        <li>The entire project, from initial planning to deployment, was done within a week (Friday, 24/2/23 - Friday, 3/3/23).</li>
+                        <li>
+                            This is the very first version of this project, considering other priorities, time, and AWS resources pricing, this project might expand as more of my knowledge is passed from Azure to AWS - such as deployment of EKS or ECS, AWS Amplify and Lambda, and CI/CD solutions for deployment.
+                        </li>
+                        <li>The project's source code can be found in <a href="">GitHub</a>.</li>
+                        <li>
+                            A playlist of videos that helped me in the process (next to a lot of googling and reading) can be found <a href="https://youtube.com/playlist?list=PLNYMx-mWLAg0xSAgeA94Apw0xUxZ191XF">Here</a>.
+                        </li>
+                        <li>If you have any questions or comments, or are hiring, you can reach me via my <a href="https://www.linkedin.com/in/noamvh/">LinkedIn Profile</a></li>
+                        <li>If you want to click on the button more and see more cats, you can go back <a href="/">here</a>!</li>
+                    </ul>
+                    
+                </p>
+            </div>
+        </div>
+        <div id="Acknowledgement">
+            <div>
+                <h2>Acknowledgement</h2>
+            </div>
+            <div>
+                <p>
+                    I would like to thank:
+                </p>
+                <p>
+                    <ul>
+                        <li>My friend Roi - for challenging me, which inspired this project (<a href="https://www.linkedin.com/in/roi-shraga/">LinkedIn</a>).</li>
+                        <li>My friend Tal - for technical advice and existing in general (<a href="https://www.linkedin.com/in/reverser/">LinkedIn</a>).</li>
+                        <li>Vesper - for the great journey that is the Outer Wilds streams while I was working on this project (<a href="https://www.youtube.com/@NoirVesper">Youtube</a>).</li>
+                        <li>ChatGPT - for helping me with a problem regarding KMS that I had a hard time finding the solution for with the traditional internet (<a href="https://openai.com/blog/chatgpt">Website</a>).</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
