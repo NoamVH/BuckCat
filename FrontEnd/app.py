@@ -21,7 +21,7 @@ def iterate_cats(current_cat, MAX_CATS):
 # This function opens a socket
 def initiazlie_socket():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('35.158.124.128', 42069))
+    client_socket.connect(('IP', 42069))
     return client_socket
 
 # This functions sends the backend which cat it wants to get, and gets a URL to the cat from it
