@@ -51,3 +51,5 @@ while True:
     print(f"Session established with {client_address}")
     cat = socket_session.recv(CHUNK_SIZE).decode('utf-8') # Receive selected cat from FrontEnd.
     get_URL_and_send_image(socket_session, s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
+
+# Test comment for git
