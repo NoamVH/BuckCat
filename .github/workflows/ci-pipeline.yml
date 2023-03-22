@@ -33,13 +33,10 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      -
         name: Build, tag, and push the Front-End Docker Image to Amazon ECR
         id: build-image
         env:
-          IMAGE: '/FrontEnd/Dockerfile'
+          IMAGE: './FrontEnd/Dockerfile'
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
           REPOSITORY: ${{ env.ECR_REGISTRY }}
           IMAGE_TAG: latest
