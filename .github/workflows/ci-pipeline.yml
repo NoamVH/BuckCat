@@ -14,7 +14,7 @@ env:
   ECR_REGISTRY: 283890144470.dkr.ecr.eu-central-1.amazonaws.com/buck-cat
 
 jobs:
-  build:
+  Build and Deploy to ECR:
     runs-on: ubuntu-latest
     steps:
       -
@@ -24,9 +24,9 @@ jobs:
         name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          #role-to-assume: arn:aws:iam::283890144470:role/GitHub-Actions-ECR
+          #aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          #aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::283890144470:role/GitHub-Actions-ECR
           aws-region: ${{ env.AWS_REGION }}
       -
         name: Login to Amazon ECR
@@ -39,28 +39,18 @@ jobs:
           IMAGE: ./FrontEnd
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
           REPOSITORY: ${{ env.ECR_REGISTRY }}
-          IMAGE_TAG: latest
+          IMAGE_TAG: frontend-latest
         run: |
           docker build -t ${{ env.ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
           docker push ${{ env.ECR_REGISTRY }}:$IMAGE_TAG
-
-
-      
-      # -
-      #   name: Build, tag, and push the front-end image to Amazon ECR
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: ./FrontEnd/
-      #     file: ./FrontEnd/Dockerfile
-      #     push: true
-      #     tags: ${{ env.ECR_REGISTRY }}/frontend:latest
-      # -
-      #   name: Build, tag, and push the back-end image to Amazon ECR
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: ./BackEnd/
-      #     file: ./BackEnd/Dockerfile
-      #     push: true
-      #     tags: ${{ env.ECR_REGISTRY }}/backend:latest
-
-      
+      -
+        name: Build, tag, and push the Back-End Docker Image to Amazon ECR
+        id: build-image
+        env:
+          IMAGE: ./BackEnd
+          REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
+          REPOSITORY: ${{ env.ECR_REGISTRY }}
+          IMAGE_TAG: backend-latest
+        run: |
+          docker build -t ${{ env.ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
+          docker push ${{ env.ECR_REGISTRY }}:$IMAGE_TAG    
