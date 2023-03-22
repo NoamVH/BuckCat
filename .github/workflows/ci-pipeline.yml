@@ -15,7 +15,7 @@ env:
 
 jobs:
   Build:
-  id: Build and Push to ECR
+    id: Build and Push to ECR
     runs-on: ubuntu-latest
     steps:
       -
