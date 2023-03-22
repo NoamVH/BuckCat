@@ -36,20 +36,34 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Build, tag, and push the front-end image to Amazon ECR
-        uses: docker/build-push-action@v2
-        with:
-          context: ./FrontEnd
-          file: ./FrontEnd/Dockerfile
-          push: true
-          tags: ${{ env.ECR_REGISTRY }}/frontend:latest
-      -
-        name: Build, tag, and push the back-end image to Amazon ECR
-        uses: docker/build-push-action@v2
-        with:
-          context: ./BackEnd/
-          file: ./BackEnd/Dockerfile
-          push: true
-          tags: ${{ env.ECR_REGISTRY }}/backend:latest
+        name: Build, tag, and push the Front-End Docker Image to Amazon ECR
+        id: build-image
+        env:
+          IMAGE: '/FrontEnd/Dockerfile'
+          REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
+          REPOSITORY: ${{ env.ECR_REGISTRY }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t frontend:latest $IMAGE
+          docker push ${{ env.ECR_REGISTRY }}
+
+
+      
+      # -
+      #   name: Build, tag, and push the front-end image to Amazon ECR
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: ./FrontEnd/
+      #     file: ./FrontEnd/Dockerfile
+      #     push: true
+      #     tags: ${{ env.ECR_REGISTRY }}/frontend:latest
+      # -
+      #   name: Build, tag, and push the back-end image to Amazon ECR
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: ./BackEnd/
+      #     file: ./BackEnd/Dockerfile
+      #     push: true
+      #     tags: ${{ env.ECR_REGISTRY }}/backend:latest
 
       
