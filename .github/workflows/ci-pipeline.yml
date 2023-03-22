@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       -
         name: Build, tag, and push the Front-End Docker Image to Amazon ECR
-        id: build-image
+        id: Build-Image-FrontEnd
         env:
           IMAGE: ./FrontEnd
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
@@ -45,7 +45,7 @@ jobs:
           docker push ${{ env.ECR_REGISTRY }}:$IMAGE_TAG
       -
         name: Build, tag, and push the Back-End Docker Image to Amazon ECR
-        id: build-image
+        id: Build-Image-BackEnd
         env:
           IMAGE: ./BackEnd
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
