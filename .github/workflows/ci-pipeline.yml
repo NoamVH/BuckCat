@@ -39,10 +39,11 @@ jobs:
         name: Build, tag, and push the Front-End Docker Image to Amazon ECR
         env:
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
-          REPOSITORY: ./FrontEnd
+          REPOSITORY: buck-cat
+          IMAGE_TAG: latest
         run: |
-          docker build -t $REGISTRY/frontend:latest .
-          docker push $REGISTRY/frontend:latest
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
 
       
