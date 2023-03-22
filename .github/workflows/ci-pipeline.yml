@@ -43,7 +43,7 @@ jobs:
           REPOSITORY: ${{ env.ECR_REGISTRY }}
           IMAGE_TAG: latest
         run: |
-          docker build -t frontend:latest ./frontend
+          docker build -t frontend:latest ./FrontEnd/Dockerfile
           docker push ${{ env.ECR_REGISTRY }}
 
 
