@@ -1,8 +1,8 @@
 name: Build and Push Image to ECR
 
-permissions:
-  id-token: write
-  contents: read
+#permissions:
+#  id-token: write
+#  contents: read
 
 on:
   push:
@@ -11,7 +11,6 @@ on:
 
 env:
   AWS_REGION: eu-central-1
-  ECR_REGISTRY: 283890144470.dkr.ecr.eu-central-1.amazonaws.com/buck-cat
 
 jobs:
   Build_and_Push_to_ECR:
@@ -24,9 +23,7 @@ jobs:
         name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          #aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-to-assume: arn:aws:iam::283890144470:role/GitHub-Actions-ECR
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
       -
         name: Login to Amazon ECR
@@ -38,19 +35,19 @@ jobs:
         env:
           IMAGE: ./FrontEnd
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
-          REPOSITORY: ${{ env.ECR_REGISTRY }}
+          REPOSITORY: ${{ secrets.AWS_ECR_REGISTRY }}
           IMAGE_TAG: frontend-latest
         run: |
-          docker build -t ${{ env.ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
-          docker push ${{ env.ECR_REGISTRY }}:$IMAGE_TAG
+          docker build -t ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
+          docker push ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG
       -
         name: Build, tag, and push the Back-End Docker Image to Amazon ECR
         id: Build-Image-BackEnd
         env:
           IMAGE: ./BackEnd
           REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
-          REPOSITORY: ${{ env.ECR_REGISTRY }}
+          REPOSITORY: ${{ secrets.AWS_ECR_REGISTRY }}
           IMAGE_TAG: backend-latest
         run: |
-          docker build -t ${{ env.ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
-          docker push ${{ env.ECR_REGISTRY }}:$IMAGE_TAG
+          docker build -t ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
+          docker push ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG
