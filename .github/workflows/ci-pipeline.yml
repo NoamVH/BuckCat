@@ -1,5 +1,9 @@
 name: Build and Push Image to ECR
 
+permissions:
+  id-token: write
+  contents: read
+
 on:
   push:
     branches:
@@ -10,10 +14,6 @@ env:
   ECR_REGISTRY: 283890144470.dkr.ecr.eu-central-1.amazonaws.com/buck-cat
 
 jobs:
-  permissions:
-    id-token: write
-    contents: read
-
   build:
     runs-on: ubuntu-latest
     steps:
