@@ -54,5 +54,3 @@ jobs:
         run: |
           docker build -t ${{ env.ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
           docker push ${{ env.ECR_REGISTRY }}:$IMAGE_TAG
-
-        # Test for without identity provider
