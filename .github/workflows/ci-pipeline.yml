@@ -41,8 +41,8 @@ jobs:
           REPOSITORY: ${{ env.ECR_REGISTRY }}
           IMAGE_TAG: latest
         run: |
-          docker build -t frontend:latest $IMAGE
-          docker push ${{ env.ECR_REGISTRY }}
+          docker build -t ${{ env.ECR_REGISTRY }}/frontend:$IMAGE_TAG $IMAGE
+          docker push ${{ env.ECR_REGISTRY }}/frontend:$IMAGE_TAG
 
 
       
