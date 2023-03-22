@@ -14,7 +14,8 @@ env:
   ECR_REGISTRY: 283890144470.dkr.ecr.eu-central-1.amazonaws.com/buck-cat
 
 jobs:
-  Build and Deploy to ECR:
+  Build:
+  id: Build and Push to ECR
     runs-on: ubuntu-latest
     steps:
       -
