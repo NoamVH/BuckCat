@@ -39,10 +39,8 @@ jobs:
       -
         name: Configure SSH
         run: |
-          pwd
-          ls
           mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/github-cations-key
+          echo "$SSH_KEY" > ~/.ssh/github-actions-key
           chmod 600 ~/.ssh/github-actions-key
           cat >> ~/.ssh/config << END
           Host frontend
