@@ -1,5 +1,9 @@
 name: Deploy ECR Images Into EC2
 
+permissions:
+  id-token: write
+  contents: read
+
 on:
   push:
     branches:
@@ -12,7 +16,6 @@ env:
 
 jobs:
   Connect_to_EC2_with_SSH:
-    name: Connect_to_EC2_with_SSH
     runs-on: ubuntu-latest
     steps:
       -
