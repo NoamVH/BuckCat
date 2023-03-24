@@ -3,12 +3,11 @@ name: Deploy ECR Images Into EC2
 on:
   push:
     branches:
-      - cd-branch
+      - cdtest
 
 env:
   REMOTE_HOST: 18.157.182.250
   REMOTE_USER: ubuntu
-  AWS_INSTANCE_SG_ID: <your-ec2-security-group-id>
 
 jobs:
   Connect_to_EC2_with_SSH:
@@ -29,7 +28,7 @@ jobs:
       name: Whitelist Runner IP Address
       run: |
         aws ec2 authorize-security-group-ingress \
-          --group-id $AWS_INSTANCE_SG_ID \
+          --group-id ${{ secrets.FRONTEND_SG_ID }} \
           --protocol tcp \
           --port 22 \
           --cidr ${{ steps.ip.outputs.ipv4 }}/32
@@ -40,8 +39,8 @@ jobs:
         echo "$SSH_KEY" > ~/.ssh/github-cations-key
         chmod 600 ~/.ssh/github-actions-key
         cat >> ~/.ssh/config << END
-        Host ec2
-          HostNmae $SSH_HOST
+        Host frontend
+          HostName $SSH_HOST
           User $SSH_USER
           IdentityFile ~/.ssh/github-actions-key
           StrictHostKeyChecking no
@@ -53,7 +52,7 @@ jobs:
       -
       name: SSH into EC2 and Boop It
       run: |
-        ssh -i ${{  }} ubuntu@${{  }}
+        ssh frontend './boop'
       -
       name: Revoke Runner IP Address
       run: |
