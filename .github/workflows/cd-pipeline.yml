@@ -5,9 +5,10 @@ permissions:
   contents: read
 
 on:
-  push:
-    branches:
-      - cdtest
+  workflow_run:
+    workflows: ["Build and Push Image to ECR"]
+    types:
+      - completed
 
 env:
   REMOTE_HOST: 18.157.182.250
@@ -56,7 +57,7 @@ jobs:
       -
         name: SSH into EC2 and Boop It
         run: |
-          ssh frontend 'echo "Boop!" >> ./boop.txt'
+          ssh frontend 'FrontEndCD'
       -
         name: Revoke Runner IP Address
         run: |
