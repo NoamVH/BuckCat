@@ -21,7 +21,7 @@ def iterate_cats(current_cat, MAX_CATS):
 # This function opens a socket
 def initiazlie_socket():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('IP', 42069))
+    client_socket.connect(('94.31.253.42', 42069))
     return client_socket
 
 # This functions sends the backend which cat it wants to get, and gets a URL to the cat from it
@@ -63,6 +63,6 @@ def explanation_page():
     return render_template('explanation.html', solution_image = solution_image)
 
 if __name__  == '__main__':
-    app.run(debug = True, host = '0.0.0.0', port = 8000)
+    app.run(debug = False, host = '0.0.0.0')
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.
