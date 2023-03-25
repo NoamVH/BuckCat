@@ -68,7 +68,7 @@ jobs:
       -
         name: SSH into EC2 and boop it
         run: |
-          ssh frontend 'FrontEndCD'
+          ssh frontend './FrontEndCD.sh'
       -
         name: Revoke Runner IP Address in Security Group
         run: |
