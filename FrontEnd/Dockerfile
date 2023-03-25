@@ -16,4 +16,4 @@ RUN pip install --upgrade pip
 
 RUN pip install Flask
 
-CMD [ "python3, "./app.py" ]
+CMD [ "python3", "./app.py" ]
