@@ -63,6 +63,6 @@ def explanation_page():
     return render_template('explanation.html', solution_image = solution_image)
 
 if __name__  == '__main__':
-    app.run(debug = False, host = '0.0.0.0')
+    app.run(debug = False, host = '0.0.0.0', port = 80)
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.
