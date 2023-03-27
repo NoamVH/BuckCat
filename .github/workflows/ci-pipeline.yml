@@ -51,5 +51,5 @@ jobs:
         run: |
           docker build -t ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
           docker push ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG
-          IMAGES_TO_DELETE=$( aws ecr list-images --region ${{ env.AWS_REGION }} --repository-name $REPOSITORY --filter "tagStatus=UNTAGGED" --query 'imageIds[]' --output json )
-          aws ecr batch-delete-image --region ${{ env.AWS_REGION }} --repository-name $REPOSITORY --image-ids "$IMAGES_TO_DELETE" || true
+          IMAGES_TO_DELETE=$( aws ecr list-images --region ${{ env.AWS_REGION }} --repository-name buck-cat --filter "tagStatus=UNTAGGED" --query 'imageIds[]' --output json )
+          aws ecr batch-delete-image --region ${{ env.AWS_REGION }} --repository-name buck-cat --image-ids "$IMAGES_TO_DELETE" || true
