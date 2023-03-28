@@ -11,7 +11,7 @@ on:
       - completed
 
 env:
-  REMOTE_HOST: 3.76.51.20
+  REMOTE_HOST: http://buck-cat.net/
   REMOTE_USER: ubuntu
   AWS_REGION: eu-central-1
 
