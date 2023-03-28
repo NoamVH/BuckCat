@@ -41,7 +41,7 @@
             <p>
                 The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure.<br>
                 The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
-                <b>However</b>, it should be noted that the main goal of this little project is the environment and learning how to work with AWS, the application was a secondary goal, which is why this website or the code running it might seem a little bit sloppy.
+                It should be noted that the main goal of this little project is the environment and learning how to work with AWS, the application was a secondary goal, which is why this website or the code running it might seem a little bit sloppy.
             </p>
             <div>
                 <h3>
@@ -50,8 +50,8 @@
             </div>
             <div>
                 <p>
-                    After uploading the application to the cloud for the first time, making changes and edits to the code became a tedious effort.<br>
-                    In order to continue passing knowledge from Azure to AWS (in this case, applying what I learned on AZDO in AWS), as well as making updating of the application on AWS more comfrotable, CI/CD pipelines were added.
+                    After uploading the application to the cloud for the first time, making changes to the application became a tedious effort.<br>
+                    In order to continue passing knowledge from Azure to AWS (in this case, applying what I learned on AZDO in AWS), as well as having updates a more comfrotable process, CI/CD pipelines were added.
                     The full description is in the final section of this explanation page.
                 </p>
             </div>
@@ -83,7 +83,7 @@
                         <li>When the user clicks the "Generate Cat" button, the Front-End server opens a socket to the Back-End server.</li>
                         <li>The Back-End server accepts the Front-End's connection, asks the S3 Cats Bucket (or Buck-Cat, if you will) for a temporary signed URL, and sends it back to the Front-End through the socket session.</li>
                         <li>The Front-End server presents the image to the user by using the temporary URL.</li>
-                        <li>The images in the Buck-Cat are encrypted with a KMS Key which is held in KMS</li>
+                        <li>The images in the Buck-Cat are encrypted with a KMS Key which is held in KMS.</li>
                     </ul>
                 </p>
             </div>
@@ -107,7 +107,7 @@
                         <tr>
                             <td>
                                 <ul>
-                                    <li>Runs Linux Ubuntu Server</li>
+                                    <li>Runs Linux Ubuntu Server.</li>
                                     <li>Runs a container with an application written in Python, HTML and CSS:
                                         <ul>
                                             <li>Uses Flask Library for running the web application.</li>
@@ -121,30 +121,30 @@
                             </td>
                             <td>
                                 <ul>
-                                    <li>Runs Linux Ubuntu Server</li>
-                                    <li>Is assigned an IAM (AWS's Identity & Management) role that gives it access priviledges to a KMS key (that encrypts the images) and the buck-cat itself</li>
+                                    <li>Runs Linux Ubuntu Server.</li>
+                                    <li>Is assigned an IAM (AWS's Identity & Management) role that gives it access priviledges to a KMS key (that encrypts the images) and the Buck-Cat itself.</li>
                                     <li>Runs a container with an application written in Python:</li>
                                     <ul>
-                                        <li>Uses the Boto3 Library (AWS SDK for Python)</li>
+                                        <li>Uses the Boto3 Library (AWS SDK for Python).</li>
                                         <li>Connects to the Front-End with Python's Socket Library.</li>
                                     </ul>
                                     <li>Iterates over the items in the Buck-Cat and lists their names.</li>
                                     <li>Gets a request to get a certain iteration of a cat front the Front-End.</li>
                                     <li>Asks the Buck-Cats for a signed URL that may be used for a limited amount of time.</li>
-                                    <li>AWS automatically decrpyts the cat picture when getting a request from the signed URL</li>
+                                    <li>AWS automatically decrpyts the cat picture when getting a request from the signed URL.</li>
                                 </ul>
                             </td>
                             <td>
                                 <ul>
                                     <li>Holds the KMS key that is used to encrypt the cat pictures.</li>
-                                    <li>The KMS key is allowed for the IAM user used by the Back-End Server</li>
+                                    <li>The KMS key is allowed for the IAM user used by the Back-End Server.</li>
                                 </ul>
                             </td>
                             <td>
                                 <ul>
                                     <li>Hold the cats image files.</li>
                                     <li>Has a policy that requires all files to be encrypted with the KMS key when uploaded.</li>
-                                    <li>Allow access to the IAM user to upload and download files (But not manage the Buck-Cat)</li>
+                                    <li>Allow access to the IAM user to upload and download files (But not manage the Buck-Cat)<./li>
                                 </ul>
                             </td>
                         </tr>
@@ -199,23 +199,23 @@
                 </div>
                 <div>
                     <p>
-                        As described in the introduction, deploying changes in the application became quite a tedious task.<br>
-                        Making changes required me to copy the solution's file into the EC2 Instances by using SCP, and then building the docker images with the dockerfiles and running the containers through an SSH session.<br>
+                        As described in the introduction, deploying changes in the application became a tedious task.<br>
+                        Making changes required me to copy the application's files into the EC2 Instances by using SCP, and then connect using SSH, build the Docker images by using the dockerfiles, and run the containers.<br>
                         This wasn't very good and not fun at all. 
                     </p>
                     <p>
                         I took this as an opportunity to pass knowledge I had about CI/CD on Azure/AZDO and apply it with AWS (by using GitHub Actions).<br>
-                        The CI/CD is not a very standard one, because it manages docker in the EC2 instances with automation by using bash scripts saved in the EC2 instances, instead of deployment by using Kubernetes or ECS.<br>
-                        This decision was made out of pricing considerations, using Kubernetes or ECS (and by extention, Fargate), requires payment for usage, while EC2 allows 750 active monthly hours for free per month.
+                        This CI/CD process is not quite a standard one, because it manages Docker in the EC2 instances with bash scripts saved in the EC2 instances, instead of deployment to Kubernetes or ECS.<br>
+                        This decision was made out of pricing considerations, using Kubernetes or ECS (and by extention, Fargate), requires full payment for usage, while EC2 allows 750 active monthly hours for free per month.
                     </p>
                     <p>
-                        The next update to this application will use Minikube instead of docker for deployment. For now, let's review the existing CI/CD process.<br>
-                        The CI/CD process was created with two YAML files that are run in GitHub Actions, and two bash files that are saved in the EC2 instances (one for FrontEnd and one for BackEnd):<br>
+                        The next update to this application will use Minikube instead of Docker for deployment. For now, let's review the existing CI/CD process.<br>
+                        The CI/CD process was created with two YAML files that run in GitHub Actions, and two bash files that are saved in the EC2 instances (one for FrontEnd and one for BackEnd):<br>
                         <ul>
                             <li>The CI Pipeline runs when a new commit is pushed to the main branch in GitHub, it builds two Docker images and pushes them to ECR, and then deletes untagged images.</li>
                             <li>The CD Pipelines runs when the CI Pipeline is completed, it connect with SSH to the FrontEnd server, and tells it to run a bash script.</li>
-                            <li>The FrontEnd server runs a bash script that pulls the new image from ECR, stops the currently running container, deletes the old container and image, and runs the new container.</li>
-                            <li>The FrontEnd script connects to the BackEnd server with SSH and tells and tells it to run a similar bash script (only it ends with running a new container).</li>
+                            <li>The FrontEnd server runs a bash script that pulls the new image from ECR, stops the currently running container, deletes the old container and image, and then runs a new container.</li>
+                            <li>The FrontEnd script connects to the BackEnd server with SSH and tells it to run a similar bash script.</li>
                         </ul>
                     </p>
                     <p>
@@ -224,7 +224,7 @@
                             <li>Run when a new commit is added to the main branch, run on an Ubuntu server.</li>
                             <li>Configure AWS Credentials (assume a pre-configured role).</li>
                             <li>Checkout the latest commit on the main branch.</li>
-                            <li>Build, tag, and push the FrontEnd Docker Image to AWS ECR</li>
+                            <li>Build, tag, and push the FrontEnd Docker Image to AWS ECR.</li>
                             <li>Build, tag, and push the BackEnd Docker Image to AWS ECR, and then delete old untagged images.</li>
                         </ul>
                     </p>
@@ -237,9 +237,9 @@
                             <li>Whitelist the pipeline server's IP address on the FrontEnd Instance's security group to allow SSH sessions.</li>
                             <li>Whitelist the pipeline server's IP address on the FrontEnd Network's ACL to allow SSH sessions.</li>
                             <li>
-                                Connect to the FrontEnd instance with SSH and tell it to run the bash script saved in it.
+                                Connect to the FrontEnd instance with SSH and tell it to run the bash script saved in it:
                                 <ul>
-                                    <li>Get ECR's credentials (ECR is set to allow access for the instance's role) and login to ECR with docker.</li>
+                                    <li>Get ECR's credentials (ECR is set to allow access for the instance's role) and login to ECR with Docker.</li>
                                     <li>Pull the newest image.</li>
                                     <li>Stop the currently running continer.</li>
                                     <li>Delete all unused containers.</li>
@@ -263,15 +263,15 @@
                 </div>
                 <div>
                     <p>
-                        Unfortunately, in order to allow the FrontEnd and BackEnd servers to pull images from ECR, the networks ACL had to allow all-TCP connections into both of their networks.<br>
-                        The reason for that is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR.<br>
-                        The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, so I went for the cheaper alternative.
+                        Unfortunately, in order to allow the FrontEnd and BackEnd servers to pull images from ECR, the networks' ACLs had to allow all IPv4/TCP connections into both of their networks.<br>
+                        The reason for that, is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR in the inbound direction.<br>
+                        The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, I went for the cheaper alternative.
                     </p>
                     <p>
-                        However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instance's security group, so while the networks themselves are open to the internet (for IPv4/TCP reachability),
+                        However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instances' security groups, so while the networks themselves are open to the internet (at least for IPv4/TCP reachability),
                         the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.<br>
                         Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).<br>
-                        There are two endpoints for the FrontEnd server (one for ECR API and one for ECR DKR), and three endpoints for the BackEnd server (ECR API, ECR DKR and S3 reachability), which results in a total of $0.06/HR.
+                        There are two endpoints for the FrontEnd server (one for ECR API and one for ECR DKR), and three endpoints for the BackEnd server (ECR API, ECR DKR, and S3 reachability), which results in a total of $0.06/HR.
                     </p>
                 </div>
             </div>
@@ -285,7 +285,7 @@
             <div>
                 <p>
                     <ul>
-                        <li>This project runs an application deployed on AWS, the goal of the project was to start to get familiar with the AWS environment.</li>
+                        <li>This project runs an application deployed on AWS, the goal of the project was to get familiar with the AWS environment.</li>
                         <li>As an extra challenge, this application was developed to run on it.</li>
                         <li>The project now has CI/CD capabilities, which makes development much more comfortable.</li>
                         <li>The entire project, from initial planning to the first deployment, was done within a week (Friday, 24/2/23 - Friday, 3/3/23).</li>
@@ -293,7 +293,7 @@
                         <li>
                             This is the second version of this project, considering other priorities, time, and AWS resources pricing, this project might expand as more of my knowledge is passed from Azure to AWS.
                         </li>
-                        <li>The next goal for the project, if I decide to keep working on it (considering pricing), will be using Minikube instead of just Docker for running the containers.</li>
+                        <li>The next goal for the project, if I decide to keep working on it (it's getting pricey), will be using Minikube instead of just Docker for running the containers.</li>
                         <li>The project's source code can be found in <a href="https://github.com/NoamVH/Buck-Cat">GitHub</a>.</li>
                         <li>
                             A playlist of videos that helped me in the process (next to a lot of googling and reading) can be found <a href="https://youtube.com/playlist?list=PLNYMx-mWLAg0xSAgeA94Apw0xUxZ191XF">Here</a>.
