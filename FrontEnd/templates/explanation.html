@@ -13,17 +13,11 @@
 </head>
 <body>
     <div>
-        <h1>What's happening here?</h1>
+        <h1>
+            What's happening here?
+        </h1>
     </div>
     <div>
-        <div>
-            <h2>Added CI/CD Capabilities with GitHub Actions</h2>
-        </div>
-        <div>
-            <p>
-                Full description pending. For now, the CI/CD YAML files can be found <a href="https://github.com/NoamVH/Buck-Cat/tree/main/.github/workflows">here</a>.
-            </p>
-        </div>
         <div>
             <h2>
                 Introduction
@@ -49,13 +43,27 @@
                 The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
                 <b>However</b>, it should be noted that the main goal of this little project is the environment and learning how to work with AWS, the application was a secondary goal, which is why this website or the code running it might seem a little bit sloppy.
             </p>
+            <div>
+                <h3>
+                    Update - Added CI/CD Capabilities with GitHub Actions
+                </h3>
+            </div>
+            <div>
+                <p>
+                    After uploading the application to the cloud for the first time, making changes and edits to the code became a tedious effort.<br>
+                    In order to continue passing knowledge from Azure to AWS (in this case, applying what I learned on AZDO in AWS), as well as making updating of the application on AWS more comfrotable, CI/CD pipelines were added.
+                    The full description is in the final section of this explanation page.
+                </p>
+            </div>
         </div>
         <div>
             <div>
                 <h2>How Does This Work</h2>
             </div>
             <div>
-                <h3>Overview</h3>
+                <h3>
+                    Overview
+                </h3>
             </div>
             <div id="Overview">
                 <p>
@@ -80,7 +88,9 @@
                 </p>
             </div>
             <div>
-                <h3>A Deeper Dive</h3>
+                <h3>
+                    A Deeper Dive
+                </h3>
             </div>
             <div>
                 <p>
@@ -183,11 +193,95 @@
                     </p>
 
                 </div>
+                <div>
+                    <h3>
+                        Automation - CI/CD Pipelines with GitHub Actions, ECR, and Bash Scripts
+                    </h3>
+                </div>
+                <div>
+                    <p>
+                        As described in the introduction, deploying changes in the application became quite a tedious task.<br>
+                        Making changes required me to copy the solution's file into the EC2 Instances by using SCP, and then building the docker images with the dockerfiles and running the containers through an SSH session.<br>
+                        This wasn't very good and not fun at all. 
+                    </p>
+                    <p>
+                        I took this as an opportunity to pass knowledge I had about CI/CD on Azure/AZDO and apply it with AWS (by using GitHub Actions).<br>
+                        The CI/CD is not a very standard one, because it manages docker in the EC2 instances with automation by using bash scripts saved in the EC2 instances, instead of deployment by using Kubernetes or ECS.<br>
+                        This decision was made out of pricing considerations, using Kubernetes or ECS (and by extention, Fargate), requires payment for usage, while EC2 allows 750 active monthly hours for free per month.
+                    </p>
+                    <p>
+                        The next update to this application will use Minikube instead of docker for deployment. For now, let's review the existing CI/CD process.<br>
+                        The CI/CD process was created with two YAML files that are run in GitHub Actions, and two bash files that are saved in the EC2 instances (one for FrontEnd and one for BackEnd):<br>
+                        <ul>
+                            <li>The CI Pipeline runs when a new commit is pushed to the main branch in GitHub, it builds two Docker images and pushes them to ECR, and then deletes untagged images.</li>
+                            <li>The CD Pipelines runs when the CI Pipeline is completed, it connect with SSH to the FrontEnd server, and tells it to run a bash script.</li>
+                            <li>The FrontEnd server runs a bash script that pulls the new image from ECR, stops the currently running container, deletes the old container and image, and runs the new container.</li>
+                            <li>The FrontEnd script connects to the BackEnd server with SSH and tells and tells it to run a similar bash script (only it ends with running a new container).</li>
+                        </ul>
+                    </p>
+                    <p>
+                        <b>CI Pipeline Steps</b>
+                        <ul>
+                            <li>Run when a new commit is added to the main branch, run on an Ubuntu server.</li>
+                            <li>Configure AWS Credentials (assume a pre-configured role).</li>
+                            <li>Checkout the latest commit on the main branch.</li>
+                            <li>Build, tag, and push the FrontEnd Docker Image to AWS ECR</li>
+                            <li>Build, tag, and push the BackEnd Docker Image to AWS ECR, and then delete old untagged images.</li>
+                        </ul>
+                    </p>
+                    <p>
+                        <b>CD Pipeline Steps</b>
+                        <ul>
+                            <li>Run when the CI Pipeline is done successfully, run on an Ubuntu server.</li>
+                            <li>Configure AWS Credentials (assume a pre-configured role).</li>
+                            <li>Get the IP address of the Ubuntu server the job is running on.</li>
+                            <li>Whitelist the pipeline server's IP address on the FrontEnd Instance's security group to allow SSH sessions.</li>
+                            <li>Whitelist the pipeline server's IP address on the FrontEnd Network's ACL to allow SSH sessions.</li>
+                            <li>
+                                Connect to the FrontEnd instance with SSH and tell it to run the bash script saved in it.
+                                <ul>
+                                    <li>Get ECR's credentials (ECR is set to allow access for the instance's role) and login to ECR with docker.</li>
+                                    <li>Pull the newest image.</li>
+                                    <li>Stop the currently running continer.</li>
+                                    <li>Delete all unused containers.</li>
+                                    <li>Delete all untagged images.</li>
+                                    <li>Run a new container for the new Docker image.</li>
+                                    <li>Connect to BackEnd with a SSH session and tell it to run the bash script saved in it (same script, just for BackEnd).</li>
+                                </ul>
+                            </li>
+                            <li>Revoke the pipeline server's IP address from the security group.</li>
+                            <li>Revoke the pipeline server's IP address from the network's ACL.</li>
+                        </ul>
+                    </p>
+                    <p>
+                        The CI/CD YAML files can be found <a href="https://github.com/NoamVH/Buck-Cat/tree/main/.github/workflows">here</a>.
+                    </p>
+                </div>
+                <div>
+                    <h3>
+                        A Note About Connectivity to ECR
+                    </h3>
+                </div>
+                <div>
+                    <p>
+                        Unfortunately, in order to allow the FrontEnd and BackEnd servers to pull images from ECR, the networks ACL had to allow all-TCP connections into both of their networks.<br>
+                        The reason for that is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR.<br>
+                        The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, so I went for the cheaper alternative.
+                    </p>
+                    <p>
+                        However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instance's security group, so while the networks themselves are open to the internet (for IPv4/TCP reachability),
+                        the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.<br>
+                        Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).<br>
+                        There are two endpoints for the FrontEnd server (one for ECR API and one for ECR DKR), and three endpoints for the BackEnd server (ECR API, ECR DKR and S3 reachability), which results in a total of $0.06/HR.
+                    </p>
+                </div>
             </div>
         </div>
         <div id="Summary">
             <div>
-                <h2>Summary</h2>
+                <h2>
+                    Summary
+                </h2>
             </div>
             <div>
                 <p>
@@ -211,7 +305,9 @@
         </div>
         <div id="Acknowledgement">
             <div>
-                <h2>Acknowledgement</h2>
+                <h2>
+                    Acknowledgement
+                </h2>
             </div>
             <div>
                 <p>
