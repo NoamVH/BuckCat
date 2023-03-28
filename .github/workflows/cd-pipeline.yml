@@ -71,6 +71,7 @@ jobs:
           ssh frontend './FrontEndCD.sh'
       -
         name: Revoke Runner IP Address in Security Group
+        if: always()
         run: |
           aws ec2 revoke-security-group-ingress \
             --group-id ${{ secrets.FRONTEND_SG_ID }} \
@@ -79,6 +80,7 @@ jobs:
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
       -
         name: Revoke Runner IP Address in ACL
+        if: always()
         run: |
           aws ec2 delete-network-acl-entry \
             --network-acl-id ${{ secrets.FRONTEND_ACL_ID }} \
