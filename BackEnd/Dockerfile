@@ -16,4 +16,4 @@ RUN pip install --upgrade pip
 
 RUN pip install boto3
 
-CMD [ "python3", "./BackEnd.py" ]
+CMD [ "python3", "./BackEndQueue.py" ]
