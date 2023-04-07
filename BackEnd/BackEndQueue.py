@@ -26,7 +26,8 @@ def get_URL(socket_session, s3_client, BUCKET_NAME, cats_list, cat):
     temp_url = bytes(temp_url, 'utf-8') # Convert the URL into bytes.
     return temp_url
 
-def receive_messages(queue):
+# This function reads a message from the Front-to-Back SQS queue.
+def receive_message(queue):
     """
     Receive a message in a request from an SQS queue.
 
@@ -39,7 +40,7 @@ def receive_messages(queue):
     )
     return messages
 
-
+# This function sends a message to the Back-to-Front SQS queue.
 def send_message(queue, message_body, message_attributes=None):
     """
     Send a message to an Amazon SQS queue.
@@ -74,7 +75,7 @@ print(cats_list)
 
 # Run the server
 while True:
-    cat = receive_messages(FRONT_TO_BACK_QUEUE).decode('utf-8') # Receive selected cat from FrontEnd.
+    cat = receive_message(FRONT_TO_BACK_QUEUE).decode('utf-8') # Receive selected cat from FrontEnd.
     url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
     send_message(BACK_TO_FRONT_QUEUE, url) # Send URL to queue
 
