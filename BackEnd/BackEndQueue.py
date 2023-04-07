@@ -44,6 +44,7 @@ while True:
         MaxNumberOfMessages = 1,
         MessageAttributeNames = ['All']
         )
+    print(cat_response)
     cat_message = cat_response['Messages'][0]
     cat = cat_message['Body']
     receipt_handle = cat_message['ReceiptHandle']
