@@ -1,5 +1,6 @@
 import os # For file handling.
 import boto3 # AWS Python SDK library.
+from botocore.client import Config # For region setting.
 from flask import Flask, render_template, request, redirect # Flask library.
 
 
@@ -10,7 +11,7 @@ MAX_CATS = 19 # The maximum number of cats in the bucket
 images_folder = os.path.join('static', 'Images') # Path to the site's Images folder
 BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue'
 FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue'
-sqs = boto3.client('sqs')
+sqs = boto3.client('sqs', config=Config(region_name = 'eu-central-1'))
 
 
 # This function simply iterates current_cat form 0 to MAX_CATS, according to the number of cats in the bucket

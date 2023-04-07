@@ -27,7 +27,7 @@ def get_URL(s3_client, BUCKET_NAME, cats_list, cat):
 # This function initializes the TCP socket and the S3 connection.
 def initialize_connections():
     s3_client = boto3.client('s3', config=Config(region_name = 'eu-central-1', signature_version = 's3v4'))
-    sqs = boto3.client('sqs')
+    sqs = boto3.client('sqs', config=Config(region_name = 'eu-central-1'))
     # Start a client in eu-central-1 and use AWS's recommended s3v4 signature version (this is REQUIRED to set when
     # running in a container).
     return sqs, s3_client
