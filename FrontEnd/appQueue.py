@@ -30,13 +30,19 @@ def get_url(current_cat):
         MessageAttributes={},
         MessageBody= str(current_cat)
     )
-    url = sqs.receive_message( # Receive URL from BackEnd from the back-to-front SQS queue.
+    url_response = sqs.receive_message( # Receive URL from BackEnd from the back-to-front SQS queue.
         QueueUrl = BACK_TO_FRONT_QUEUE,
-        MessageAttributeNames = ['All']
+        MaxNumberOfMessages = 1,
+        MessageAttributeNames = ['All']        
         )
+    print(url_response)
+    url = url_response['Messages'][0]
+    print(url)
+    receipt_handle = url['ReceiptHandle']
+    print(receipt_handle)
     sqs.delete_message(
         QueueUrl = BACK_TO_FRONT_QUEUE,
-        ReceiptHandle = 'Received and Deleted'
+        ReceiptHandle = receipt_handle
     )
     print("URL Received Seccessfully:")
     print(url)

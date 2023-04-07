@@ -40,13 +40,16 @@ print(cats_list)
 
 # Run the server
 while True:
-    cat = sqs.receive_message( # Receive selected cat from FrontEnd from the front-to-back SQS queue.
+    cat_response = sqs.receive_message( # Receive selected cat from FrontEnd from the front-to-back SQS queue.
         QueueUrl = FRONT_TO_BACK_QUEUE,
+        MaxNumberOfMessages = 1,
         MessageAttributeNames = ['All']
         )
+    cat = cat_response['Messages'][0]
+    receipt_handle = cat['ReceiptHandle']
     sqs.delete_message(
-        QueueUrl = FRONT_TO_BACK_QUEUE
-        ReceiptHandle = 'Received and Deleted'
+        QueueUrl = FRONT_TO_BACK_QUEUE,
+        ReceiptHandle = receipt_handle
     )
     url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
     sqs.send_message( # Send the URL to the FrontEnd through the back-to-front SQS queue.
