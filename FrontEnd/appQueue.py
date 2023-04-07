@@ -5,12 +5,11 @@ from flask import Flask, render_template, request, redirect # Flask library.
 
 
 # Parameters:
-CHUNK_SIZE = 2048 # For socket messages size
 current_cat = 0 # For initial cat from the cat list
 MAX_CATS = 19 # The maximum number of cats in the bucket
 images_folder = os.path.join('static', 'Images') # Path to the site's Images folder
-BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue'
-FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue'
+BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue.fifo'
+FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue.fifo'
 sqs = boto3.client('sqs', config=Config(region_name = 'eu-central-1'))
 
 

@@ -2,9 +2,8 @@ import boto3 # AWS Python SDK library.
 from botocore.client import Config # For using the s3v4 signing.
 
 # Parameters:
-CHUNK_SIZE = 2048 # For socket messages size.
 BUCKET_NAME = 'buck-cat' # The name of the bucket used in AWS.
-BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue'
+BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue.fifo'
 FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue'
 
 
@@ -47,14 +46,14 @@ while True:
     if 'Messages' in cat_response:
         cat_message = cat_response['Messages'][0]
         cat = cat_message['Body']
-        receipt_handle = cat_message['ReceiptHandle']
-        sqs.delete_message(
-            QueueUrl = FRONT_TO_BACK_QUEUE,
-            ReceiptHandle = receipt_handle
-        )
         url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
         sqs.send_message( # Send the URL to the FrontEnd through the back-to-front SQS queue.
             QueueUrl = BACK_TO_FRONT_QUEUE,
             MessageAttributes={},
             MessageBody= url
         )
+        receipt_handle = cat_message['ReceiptHandle']
+        sqs.delete_message(
+        QueueUrl = FRONT_TO_BACK_QUEUE,
+        ReceiptHandle = receipt_handle
+    )
