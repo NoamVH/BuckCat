@@ -35,16 +35,19 @@ def get_url(current_cat):
         MaxNumberOfMessages = 1,
         MessageAttributeNames = ['All']        
         )
-    url_message = url_response['Messages'][0]
-    url = url_message['Body']
-    receipt_handle = url_message['ReceiptHandle']
-    sqs.delete_message(
-        QueueUrl = BACK_TO_FRONT_QUEUE,
-        ReceiptHandle = receipt_handle
-    )
-    print("URL Received Seccessfully:")
-    print(url)
-    return url
+    if 'Messages' in url_response:
+        url_message = url_response['Messages'][0]
+        url = url_message['Body']
+        receipt_handle = url_message['ReceiptHandle']
+        sqs.delete_message(
+            QueueUrl = BACK_TO_FRONT_QUEUE,
+            ReceiptHandle = receipt_handle
+        )
+        print("URL Received Seccessfully:")
+        print(url)
+        return url
+    else:
+        return None
 
 #Initialize the application
 app = Flask(__name__)
