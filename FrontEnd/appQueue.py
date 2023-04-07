@@ -35,11 +35,9 @@ def get_url(current_cat):
         MaxNumberOfMessages = 1,
         MessageAttributeNames = ['All']        
         )
-    print(url_response)
-    url = url_response['Messages'][0]
-    print(url)
+    url_message = url_response['Messages'][0]
+    url = url_message['Body']
     receipt_handle = url['ReceiptHandle']
-    print(receipt_handle)
     sqs.delete_message(
         QueueUrl = BACK_TO_FRONT_QUEUE,
         ReceiptHandle = receipt_handle
