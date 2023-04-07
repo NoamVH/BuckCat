@@ -35,7 +35,8 @@ def get_url(current_cat):
         MessageAttributeNames = ['All']
         )
     sqs.delete_message(
-        QueueUrl = BACK_TO_FRONT_QUEUE
+        QueueUrl = BACK_TO_FRONT_QUEUE,
+        ReceiptHandle = 'Received and Deleted'
     )
     print("URL Received Seccessfully:")
     print(url)

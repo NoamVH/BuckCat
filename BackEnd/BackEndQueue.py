@@ -46,6 +46,7 @@ while True:
         )
     sqs.delete_message(
         QueueUrl = FRONT_TO_BACK_QUEUE
+        ReceiptHandle = 'Received and Deleted'
     )
     url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
     sqs.send_message( # Send the URL to the FrontEnd through the back-to-front SQS queue.
