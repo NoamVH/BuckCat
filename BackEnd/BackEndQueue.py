@@ -1,4 +1,3 @@
-import socket
 import boto3 # AWS Python SDK library.
 from botocore.client import Config # For using the s3v4 signing.
 
@@ -25,57 +24,32 @@ def get_URL(s3_client, BUCKET_NAME, cats_list, cat):
     )
     return temp_url
 
-# This function reads a message from the Front-to-Back SQS queue.
-def receive_message(queue):
-    """
-    Receive a message in a request from an SQS queue.
-
-    :param queue: The queue from which to receive messages.
-    :return: The list of Message objects received. These each contain the body
-             of the message and metadata and custom attributes.
-    """
-    messages = queue.receive_message(
-        MessageAttributeNames=['All'],
-    )
-    return messages
-
-# This function sends a message to the Back-to-Front SQS queue.
-def send_message(queue, message_body, message_attributes=None):
-    """
-    Send a message to an Amazon SQS queue.
-
-    :param queue: The queue that receives the message.
-    :param message_body: The body text of the message.
-    :param message_attributes: Custom attributes of the message. These are key-value
-                               pairs that can be whatever you want.
-    :return: The response from SQS that contains the assigned message ID.
-    """
-    if not message_attributes:
-        message_attributes = {}
-        response = queue.send_message(
-            MessageBody=message_body,
-            MessageAttributes=message_attributes
-        )
-    else:
-        return response
-
 # This function initializes the TCP socket and the S3 connection.
 def initialize_connections():
     s3_client = boto3.client('s3', config=Config(region_name = 'eu-central-1', signature_version = 's3v4'))
+    sqs = boto3.client('sqs')
     # Start a client in eu-central-1 and use AWS's recommended s3v4 signature version (this is REQUIRED to set when
     # running in a container).
-    return s3_client
+    return sqs, s3_client
 
 
 # Run the initialization functions
-s3_client = initialize_connections()
+sqs, s3_client = initialize_connections()
 cats_list = cats_collection(s3_client, BUCKET_NAME)
 print(cats_list)
 
 # Run the server
 while True:
-    cat = receive_message(FRONT_TO_BACK_QUEUE) # Receive selected cat from FrontEnd.
+    cat = sqs.receive_message( # Receive selected cat from FrontEnd from the front-to-back SQS queue.
+        QueueUrl = FRONT_TO_BACK_QUEUE,
+        MessageAttributeNames = ['All']
+        )
+    sqs.delete_message(
+        QueueUrl = FRONT_TO_BACK_QUEUE
+    )
     url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
-    send_message(BACK_TO_FRONT_QUEUE, url) # Send URL to queue
-
-# Test comment for git
+    sqs.send_message( # Send the URL to the FrontEnd through the back-to-front SQS queue.
+        QueueUrl = BACK_TO_FRONT_QUEUE,
+        MessageAttributes={},
+        MessageBody= url
+    )

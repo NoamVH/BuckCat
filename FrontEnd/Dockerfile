@@ -14,6 +14,8 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
+RUN pip install boto3
+
 RUN pip install Flask
 
 CMD [ "python3", "./appQueue.py" ]

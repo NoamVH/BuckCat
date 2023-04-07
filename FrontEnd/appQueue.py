@@ -1,6 +1,6 @@
-import os
-import socket
-from flask import Flask, render_template, request, redirect
+import os # For file handling.
+import boto3 # AWS Python SDK library.
+from flask import Flask, render_template, request, redirect # Flask library.
 
 
 # Parameters:
@@ -10,6 +10,7 @@ MAX_CATS = 19 # The maximum number of cats in the bucket
 images_folder = os.path.join('static', 'Images') # Path to the site's Images folder
 BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue'
 FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue'
+sqs = boto3.client('sqs')
 
 
 # This function simply iterates current_cat form 0 to MAX_CATS, according to the number of cats in the bucket
@@ -20,45 +21,21 @@ def iterate_cats(current_cat, MAX_CATS):
         return current_cat
     return current_cat
 
-# This function reads a message from the Back-to-Front SQS queue.
-def receive_message(queue):
-    """
-    Receive a message in a request from an SQS queue.
-
-    :param queue: The queue from which to receive messages.
-    :return: The list of Message objects received. These each contain the body
-             of the message and metadata and custom attributes.
-    """
-    messages = queue.receive_message(
-        MessageAttributeNames=['All'],
-    )
-    return messages
-
-# This function sends a message to the Back-to-Front SQS queue.
-def send_message(queue, message_body, message_attributes=None):
-    """
-    Send a message to an Amazon SQS queue.
-
-    :param queue: The queue that receives the message.
-    :param message_body: The body text of the message.
-    :param message_attributes: Custom attributes of the message. These are key-value
-                               pairs that can be whatever you want.
-    :return: The response from SQS that contains the assigned message ID.
-    """
-    if not message_attributes:
-        message_attributes = {}
-        response = queue.send_message(
-            MessageBody=message_body,
-            MessageAttributes=message_attributes
-        )
-    else:
-        return response
-
 # This functions sends the backend which cat it wants to get, and gets a URL to the cat from it
 # The function uses the queues send and receive functions to get and send the messages.
 def get_url(current_cat):
-    send_message(FRONT_TO_BACK_QUEUE, str(current_cat))
-    url = receive_message(BACK_TO_FRONT_QUEUE)
+    sqs.send_message( # Send the current cat to the BackEnd through the front-to-back SQS queue.
+        QueueUrl = FRONT_TO_BACK_QUEUE,
+        MessageAttributes={},
+        MessageBody= str(current_cat)
+    )
+    url = sqs.receive_message( # Receive URL from BackEnd from the back-to-front SQS queue.
+        QueueUrl = BACK_TO_FRONT_QUEUE,
+        MessageAttributeNames = ['All']
+        )
+    sqs.delete_message(
+        QueueUrl = BACK_TO_FRONT_QUEUE
+    )
     print("URL Received Seccessfully:")
     print(url)
     return url
