@@ -1,4 +1,6 @@
 import os # For file handling.
+import random # For random strings.
+import string # For random strings.
 import boto3 # AWS Python SDK library.
 from botocore.client import Config # For region setting.
 from flask import Flask, render_template, request, redirect # Flask library.
@@ -12,6 +14,12 @@ BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-
 FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue.fifo'
 sqs = boto3.client('sqs', config=Config(region_name = 'eu-central-1'))
 
+# This function creates a random string that is eight letters long, to be used later as a deduplication ID for sending messages to the SQS queue.
+def create_random_deduplication_id():
+    length = 8
+    letters = string.ascii_lowercase
+    random_string = ''.join(random.choice(letters) for i in range(length))
+    return random_string
 
 # This function simply iterates current_cat form 0 to MAX_CATS, according to the number of cats in the bucket
 def iterate_cats(current_cat, MAX_CATS):
@@ -27,6 +35,7 @@ def get_url(current_cat):
     sqs.send_message( # Send the current cat to the BackEnd through the front-to-back SQS queue.
         QueueUrl = FRONT_TO_BACK_QUEUE,
         MessageGroupId = 'cat_requests',
+        MessageDeduplicationId = create_random_deduplication_id(),
         MessageAttributes={},
         MessageBody= str(current_cat)
     )
