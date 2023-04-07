@@ -1,6 +1,6 @@
 FROM python:3.10.10-slim-bullseye
 
-ADD BackEnd.py .
+ADD BackEndQueue.py .
 
 ENV TZ=Asia/Jerusalem
 
