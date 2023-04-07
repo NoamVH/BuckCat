@@ -17,13 +17,12 @@ def cats_collection(s3_client, BUCKET_NAME):
     return cats_list
 
 # This function asks for URL for the current cat and sends it to the front end through the socket.
-def get_URL(socket_session, s3_client, BUCKET_NAME, cats_list, cat):
+def get_URL(s3_client, BUCKET_NAME, cats_list, cat):
     temp_url = s3_client.generate_presigned_url( # Generate a URL according to the parameters, expire in 10 seconds.
         ClientMethod = "get_object",
         Params = {"Bucket": BUCKET_NAME, "Key": cats_list[int(cat)]},
         ExpiresIn = 10
     )
-    temp_url = bytes(temp_url, 'utf-8') # Convert the URL into bytes.
     return temp_url
 
 # This function reads a message from the Front-to-Back SQS queue.
@@ -75,7 +74,7 @@ print(cats_list)
 
 # Run the server
 while True:
-    cat = receive_message(FRONT_TO_BACK_QUEUE).decode('utf-8') # Receive selected cat from FrontEnd.
+    cat = receive_message(FRONT_TO_BACK_QUEUE) # Receive selected cat from FrontEnd.
     url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
     send_message(BACK_TO_FRONT_QUEUE, url) # Send URL to queue
 

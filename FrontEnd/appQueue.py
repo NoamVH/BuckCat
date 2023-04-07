@@ -57,8 +57,8 @@ def send_message(queue, message_body, message_attributes=None):
 # This functions sends the backend which cat it wants to get, and gets a URL to the cat from it
 # The function uses the queues send and receive functions to get and send the messages.
 def get_url(current_cat):
-    send_message(FRONT_TO_BACK_QUEUE, bytes(str(current_cat), "utf-8") )
-    url = receive_message(BACK_TO_FRONT_QUEUE).decode("utf-8")
+    send_message(FRONT_TO_BACK_QUEUE, str(current_cat))
+    url = receive_message(BACK_TO_FRONT_QUEUE)
     print("URL Received Seccessfully:")
     print(url)
     return url
