@@ -4,7 +4,7 @@ from botocore.client import Config # For using the s3v4 signing.
 # Parameters:
 BUCKET_NAME = 'buck-cat' # The name of the bucket used in AWS.
 BACK_TO_FRONT_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/back-to-front-queue.fifo'
-FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue'
+FRONT_TO_BACK_QUEUE = 'https://sqs.eu-central-1.amazonaws.com/283890144470/front-to-back-queue.fifo'
 
 
 # This function gets the names of the files in the bucket and returns them as a list.
