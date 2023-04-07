@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - queue
 
 env:
   AWS_REGION: eu-central-1
