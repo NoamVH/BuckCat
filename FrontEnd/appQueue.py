@@ -31,6 +31,7 @@ def get_url(current_cat):
     )
     url_response = sqs.receive_message( # Receive URL from BackEnd from the back-to-front SQS queue.
         QueueUrl = BACK_TO_FRONT_QUEUE,
+        MessageGroupId = 'cat_requests',
         MaxNumberOfMessages = 1,
         MessageAttributeNames = ['All']        
         )

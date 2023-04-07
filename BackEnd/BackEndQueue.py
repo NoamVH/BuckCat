@@ -19,7 +19,7 @@ def get_URL(s3_client, BUCKET_NAME, cats_list, cat):
     temp_url = s3_client.generate_presigned_url( # Generate a URL according to the parameters, expire in 10 seconds.
         ClientMethod = "get_object",
         Params = {"Bucket": BUCKET_NAME, "Key": cats_list[int(cat)]},
-        ExpiresIn = 20
+        ExpiresIn = 10
     )
     return temp_url
 
@@ -49,6 +49,7 @@ while True:
         url = get_URL(s3_client, BUCKET_NAME, cats_list, cat) # Get the URL and send it to FrontEnd.
         sqs.send_message( # Send the URL to the FrontEnd through the back-to-front SQS queue.
             QueueUrl = BACK_TO_FRONT_QUEUE,
+            MessageGroupId = 'urls',
             MessageAttributes={},
             MessageBody= url
         )
