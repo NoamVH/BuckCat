@@ -37,7 +37,7 @@ def get_url(current_cat):
         )
     url_message = url_response['Messages'][0]
     url = url_message['Body']
-    receipt_handle = url['ReceiptHandle']
+    receipt_handle = url_message['ReceiptHandle']
     sqs.delete_message(
         QueueUrl = BACK_TO_FRONT_QUEUE,
         ReceiptHandle = receipt_handle
