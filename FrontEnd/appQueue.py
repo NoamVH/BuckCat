@@ -26,12 +26,12 @@ def iterate_cats(current_cat, MAX_CATS):
 def get_url(current_cat):
     sqs.send_message( # Send the current cat to the BackEnd through the front-to-back SQS queue.
         QueueUrl = FRONT_TO_BACK_QUEUE,
+        MessageGroupId = 'cat_requests',
         MessageAttributes={},
         MessageBody= str(current_cat)
     )
     url_response = sqs.receive_message( # Receive URL from BackEnd from the back-to-front SQS queue.
         QueueUrl = BACK_TO_FRONT_QUEUE,
-        MessageGroupId = 'cat_requests',
         MaxNumberOfMessages = 1,
         MessageAttributeNames = ['All']        
         )
