@@ -20,7 +20,7 @@ def get_URL(s3_client, BUCKET_NAME, cats_list, cat):
     temp_url = s3_client.generate_presigned_url( # Generate a URL according to the parameters, expire in 10 seconds.
         ClientMethod = "get_object",
         Params = {"Bucket": BUCKET_NAME, "Key": cats_list[int(cat)]},
-        ExpiresIn = 10
+        ExpiresIn = 20
     )
     return temp_url
 
@@ -36,7 +36,6 @@ def initialize_connections():
 # Run the initialization functions
 sqs, s3_client = initialize_connections()
 cats_list = cats_collection(s3_client, BUCKET_NAME)
-print(cats_list)
 
 # Run the server
 while True:
