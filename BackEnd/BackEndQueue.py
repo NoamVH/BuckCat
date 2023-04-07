@@ -46,7 +46,9 @@ while True:
         MessageAttributeNames = ['All']
         )
     cat = cat_response['Messages'][0]
+    print(cat)
     receipt_handle = cat['ReceiptHandle']
+    print(receipt_handle)
     sqs.delete_message(
         QueueUrl = FRONT_TO_BACK_QUEUE,
         ReceiptHandle = receipt_handle
