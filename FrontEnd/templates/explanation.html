@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
         the argument for the static folder and the name of the file itself need to be set.
@@ -45,7 +46,7 @@
             </p>
             <div>
                 <h3>
-                    Update - Added CI/CD Capabilities with GitHub Actions
+                    Update v2.0 - Added CI/CD Capabilities with GitHub Actions
                 </h3>
             </div>
             <div>
@@ -53,6 +54,16 @@
                     After uploading the application to the cloud for the first time, making changes to the application became a tedious effort.<br>
                     I used this as an opportunity to pass some more knowledge from Azure to AWS (in this case, applying what I learned on AZDO in AWS), as well as having updates a more comfortable process, for that CI/CD pipelines were added.
                     The full description is in the final section of this explanation page.
+                </p>
+            </div>
+            <div>
+                <h3>
+                    Update v3.0 - Added SQS Queue
+                </h3>
+            </div>
+            <div>
+                <p>
+                    This update replaced the use of a socket connection between the FrontEnd and the BackEnd servers with an SQS queue.
                 </p>
             </div>
         </div>
@@ -80,8 +91,8 @@
                     <ul>
                         <li>User reaches the Front-End server from the internet.</li>
                         <li>The Front-End server sends the user this web page.</li>
-                        <li>When the user clicks the "Generate Cat" button, the Front-End server opens a socket to the Back-End server.</li>
-                        <li>The Back-End server accepts the Front-End's connection, asks the S3 Cats Bucket (or Buck-Cat, if you will) for a temporary signed URL, and sends it back to the Front-End through the socket session.</li>
+                        <li>When the user clicks the "Generate Cat" button, the Front-End server sends a request to the Back-End server through SQS.</li>
+                        <li>The Back-End server accepts the Front-End's connection, asks the S3 Cats Bucket (or Buck-Cat, if you will) for a temporary signed URL, and sends it back to the Front-End through the SQS queue.</li>
                         <li>The Front-End server presents the image to the user by using the temporary URL.</li>
                         <li>The images in the Buck-Cat are encrypted with a KMS Key which is held in KMS.</li>
                     </ul>
@@ -111,12 +122,12 @@
                                     <li>Runs a container with an application written in Python, HTML and CSS:
                                         <ul>
                                             <li>Uses Flask Library for running the web application.</li>
-                                            <li>Connects to the Back-End with Python's Socket Library.</li>
+                                            <li>Sends a request to BackEnd through SQS.</li>
                                         </ul>
                                     </li>
                                     <li>Iterates through how many cats were watched and goes back to the start.</li>
                                     <li>Sends to the Back-End Server which iteration of a cat to get to the URL for.</li>
-                                    <li>Is within a Front-End VPC (Virtual Private Cloud) that only allows HTTP inbound traffic front the internet and the socket's inbound and outbound traffic towards the Back-End.</li>
+                                    <li>Is within a Front-End VPC (Virtual Private Cloud) that only allows HTTP/HTTPS inbound traffic front the internet.</li>
                                 </ul>
                             </td>
                             <td>
@@ -126,7 +137,7 @@
                                     <li>Runs a container with an application written in Python:</li>
                                     <ul>
                                         <li>Uses the Boto3 Library (AWS SDK for Python).</li>
-                                        <li>Connects to the Front-End with Python's Socket Library.</li>
+                                        <li>Sends URLs to FrontEnd with SQS.</li>
                                     </ul>
                                     <li>Iterates over the items in the Buck-Cat and lists their names.</li>
                                     <li>Gets a request to get a certain iteration of a cat front the Front-End.</li>
@@ -290,6 +301,7 @@
                         <li>The project now has CI/CD capabilities, which makes development much more comfortable.</li>
                         <li>The entire project, from initial planning to the first deployment, was done within a week (Friday, 24/2/23 - Friday, 3/3/23).</li>
                         <li>The addition of the CI/CD process, was done within five days (Tuesday, 21/3/23 - Saturday, 25/3/23).</li>
+                        <li>The addition of the SQS queue took less than a day.</li>
                         <li>
                             This is the second version of this project, considering other priorities, time, and AWS resources pricing, this project might expand as more of my knowledge is passed from Azure to AWS.
                         </li>

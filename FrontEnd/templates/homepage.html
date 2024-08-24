@@ -5,11 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
         the argument for the static folder and the name of the file itself need to be set.
     -->
-    <title>Buck-Cat v2.0</title>
+    <title>Buck-Cat v3.0</title>
 </head>
 <body>
     <div id="Title">
@@ -21,7 +22,7 @@
                 <img src="https://media.tenor.com/6M-2KmXuTCcAAAAC/bucket-tf2.gif" id="ThisIsABucket">
             </div>
             <div>
-                <h2>This bucket has cats in it!! (Now with CI/CD capabilities!)</h2>
+                <h2>This bucket has cats in it!! (Now with SQS!)</h2>
             </div>
             <div id="CatFormDiv">
                     <form method="post" action="/" id="CatForm">
