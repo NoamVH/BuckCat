@@ -1,2 +1,2 @@
 # Buck-Cat
-A little AWS Project based on Python
+A little ~~AWS~~ GCP Project based on Python and Terraform.
