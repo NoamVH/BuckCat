@@ -1,5 +1,5 @@
 variable "project" {
-  
+
 }
 
 variable "region" {
