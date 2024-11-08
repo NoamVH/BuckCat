@@ -29,34 +29,53 @@ resource "google_compute_network" "buckcat_backend_network" {
   name = "buckcat-backend-network"
 }
 
-resource "google_cloud_run_service" "buckcat_backend_service" {
-  name = "buckcat-backend-service"
-  location = var.region
+resource "google_compute_firewall" "backend_firewall" {
+  name    = "buckcat-backend-firewall"
+  network = google_compute_network.buckcat_backend_network.name
 
-  template {
-    spec {
-      containers {
-        image = "nginx:latest"
-      }
-    }
+  source_ranges = ["147.235.196.72/32"]
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = [22, 80, 8080]
   }
 }
 
+# resource "google_cloud_run_service" "buckcat_backend_service" {
+#   name     = "buckcat-backend-service"
+#   location = var.region
 
-# resource "google_compute_instance" "vm_instance" {
-#   name         = "buckcat-instance"
-#   machine_type = "e2-micro"
-#   #tags         = ["web", "dev"]
-
-#   boot_disk {
-#     initialize_params {
-#       image = "cos-cloud/cos-stable"
-#     }
-#   }
-
-#   network_interface {
-#     network = google_compute_network.vpc_network.name
-#     access_config {
+#   template {
+#     spec {
+#       containers {
+#         image = "nginx:latest"
+#         ports {
+#           container_port = 8080
+#         }
+#       }
 #     }
 #   }
 # }
+
+
+resource "google_compute_instance" "vm_instance" {
+  name         = "buckcat-instance"
+  machine_type = "e2-micro"
+  #tags         = ["web", "dev"]
+
+  boot_disk {
+    initialize_params {
+      image = "cos-cloud/cos-stable"
+    }
+  }
+
+  network_interface {
+    network = google_compute_network.buckcat_backend_network.name
+    access_config {
+    }
+  }
+}
