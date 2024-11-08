@@ -21,30 +21,6 @@ resource "google_storage_bucket" "static" {
   uniform_bucket_level_access = true
 }
 
-resource "google_compute_network" "buckcat_frontend_network" {
-  name = "buckcat-frontend-network"
-}
-
-resource "google_compute_network" "buckcat_backend_network" {
-  name = "buckcat-backend-network"
-}
-
-resource "google_compute_firewall" "backend_firewall" {
-  name    = "buckcat-backend-firewall"
-  network = google_compute_network.buckcat_backend_network.name
-
-  source_ranges = ["147.235.196.72/32"]
-
-  allow {
-    protocol = "icmp"
-  }
-
-  allow {
-    protocol = "tcp"
-    ports    = [22, 80, 8080]
-  }
-}
-
 # resource "google_cloud_run_service" "buckcat_backend_service" {
 #   name     = "buckcat-backend-service"
 #   location = var.region
@@ -60,7 +36,6 @@ resource "google_compute_firewall" "backend_firewall" {
 #     }
 #   }
 # }
-
 
 resource "google_compute_instance" "vm_instance" {
   name         = "buckcat-instance"

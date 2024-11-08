@@ -9,3 +9,7 @@ variable "region" {
 variable "zone" {
   default = "us-east1-b"
 }
+
+variable "nom_ip" {
+  
+}
