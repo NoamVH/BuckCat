@@ -10,6 +10,8 @@ resource "google_compute_firewall" "backend_firewall" {
   name    = "buckcat-backend-firewall"
   network = google_compute_network.buckcat_backend_network.name
   
+  source_ranges = var.nom_ip
+
   allow {
     protocol = "icmp"
   }
