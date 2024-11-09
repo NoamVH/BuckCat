@@ -21,3 +21,13 @@ resource "google_compute_firewall" "backend_firewall" {
     ports    = [22, 80, 8080]
   }
 }
+
+resource "google_cloud_tasks_queue" "front_to_back_queue" {
+  name     = "front-to-back-queue"
+  location = var.region
+}
+
+resource "google_cloud_tasks_queue" "back_to_front_queue" {
+  name     = "back-to-front-queue"
+  location = var.region
+}

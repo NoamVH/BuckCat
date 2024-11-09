@@ -6,5 +6,5 @@ resource "google_service_account" "local_testing_service_account" {
 resource "google_storage_bucket_iam_member" "local_testing_iam_member" {
   bucket = google_storage_bucket.static.name
   role   = "roles/storage.objectViewer"
-  member = google_service_account.local_testing_service_account.email
+  member = "serviceAccount:${google_service_account.local_testing_service_account.email}"
 }
