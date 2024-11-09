@@ -1,5 +1,5 @@
-.terraform*
+.terraform/
 *.tfvars
 __pycache__
-backend.tf
 *tfstate*
+prefab-lamp-440513-v5-61362c8c30d4*
