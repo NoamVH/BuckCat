@@ -13,7 +13,7 @@ provider "google" {
   zone    = var.zone
 }
 
-resource "google_storage_bucket" "static" {
+resource "google_storage_bucket" "buckcat" {
   name          = "buckcat"
   location      = var.region
   storage_class = "COLDLINE"
