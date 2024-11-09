@@ -50,6 +50,7 @@ def main():
                 print(f"  Body: {task.http_request.body.decode('utf-8')}")
         print("-" * 20)
 
+    front_to_back_tasks_client.delete_task(request={"name": task.name})
     
 
 if __name__ == "__main__":
