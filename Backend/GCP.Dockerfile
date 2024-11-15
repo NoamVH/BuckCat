@@ -8,7 +8,7 @@ ADD GCPBackEnd.py .
 
 #RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-COPY ./GCPBackEnd.py ./requirements.txt /BuckCat
+COPY ./GCPBackEnd.py ./requirements.txt /BuckCat/
 
 WORKDIR /BuckCat
 
