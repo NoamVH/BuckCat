@@ -1,4 +1,4 @@
-import os                                    # For GCP credentials environment variable.
+#import os                                    # For GCP credentials environment variable.
 from google.cloud import storage, tasks_v2   # For GCP clients.
 from urllib.parse import urlparse, parse_qsl # For Tasks URL parsing.
 import datetime                              # For URL expiration.
