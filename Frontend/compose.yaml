@@ -1,0 +1,14 @@
+services:
+  backend:
+    build: .
+    image: buckcat-frontend:latest
+    secrets:
+      - gcloud_credentials
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/gcloud_credentials
+    ports:
+      - 80:80
+
+secrets:
+  gcloud_credentials:
+    file: ../Infrastructure/prefab-lamp-440513-v5-61362c8c30d4.json

@@ -4,15 +4,14 @@ import datetime                             # For URL expiration.
 
 
 # Needs to be removed in production?
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../Infrastructure/prefab-lamp-440513-v5-61362c8c30d4.json'
+#os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../Infrastructure/prefab-lamp-440513-v5-61362c8c30d4.json'
 
 # Global variables - consider swapping with a configuration file.
-PROJECT_ID = "prefab-lamp-440513-v5"
-LOCATION_ID = "us-east1"
-BUCKCAT_NAME = "buckcat"
-CATS_URLS_TOPIC_ID = "cats_urls"
+PROJECT_ID                    = "prefab-lamp-440513-v5"
+LOCATION_ID                   = "us-east1"
+BUCKCAT_NAME                  = "buckcat"
+CATS_URLS_TOPIC_ID            = "cats_urls"
 CATS_REQUESTS_SUBSCRIPTION_ID = "cats_requests_subscription"
-SUBSCRIBER_TIMEOUT = 5.0
 
 
 def initialize_buckcat_client():
@@ -40,7 +39,7 @@ def generate_cat_url(buckcat, cat_name):
 
     cat_url = cat.generate_signed_url(
         version="v4",
-        expiration=datetime.timedelta(minutes=2),
+        expiration=datetime.timedelta(minutes=10),
         method="GET"
     )
 
@@ -70,7 +69,7 @@ def get_cat_request(subscriber_client, publisher_client, buckcat, cats_list):
         try:
             # When `timeout` is not set, result() will block indefinitely,
             # unless an exception is encountered first.
-            streaming_pull_future.result(timeout=SUBSCRIBER_TIMEOUT)
+            streaming_pull_future.result()
         except TimeoutError:
             print("Subscriber Pull Timed Out.")
             streaming_pull_future.cancel()  # Trigger the shutdown.
