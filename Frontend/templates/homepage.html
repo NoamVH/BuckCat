@@ -10,7 +10,7 @@
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
         the argument for the static folder and the name of the file itself need to be set.
     -->
-    <title>Buck-Cat v3.0</title>
+    <title>Buck-Cat v4.0</title>
 </head>
 <body>
     <div id="Title">
@@ -22,10 +22,10 @@
                 <img src="https://media.tenor.com/6M-2KmXuTCcAAAAC/bucket-tf2.gif" id="ThisIsABucket">
             </div>
             <div>
-                <h2>This bucket has cats in it!! (Now with SQS!)</h2>
+                <h2>This bucket has cats in it!! (Now on GCP with Terraform)</h2>
             </div>
             <div id="CatFormDiv">
-                    <form method="post" action="/" id="CatForm">
+                    <form method="post" action="/request_cat" id="CatForm">
                         <input type="hidden" name="animal" value="cat">
                         <input type="submit" class="CatButton" value="Generate Cat">
                     </form>

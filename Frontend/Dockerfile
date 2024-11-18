@@ -1,21 +1,15 @@
-FROM python:3.10.10-slim-bullseye
+FROM python:3.13-slim-bookworm
 
-ADD appQueue.py .
+COPY ./GCPFrontend.py ./requirements.txt /BuckCat/
 
-#ENV TZ=Asia/Jerusalem
+COPY ./static /BuckCat/static/
 
-#RUN apt-get update && apt-get install -y tzdata
+COPY ./templates /BuckCat/templates/
 
-#RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-COPY . /app
-
-WORKDIR /app
+WORKDIR /BuckCat
 
 RUN pip install --upgrade pip
 
-RUN pip install boto3
+RUN pip install -r ./requirements.txt
 
-RUN pip install Flask
-
-CMD [ "python3", "./appQueue.py" ]
+CMD [ "python3", "GCPFrontend.py" ]
