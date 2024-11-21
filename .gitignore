@@ -3,3 +3,4 @@
 __pycache__
 *tfstate*
 .gcp-service-account-credentials.json
+.env

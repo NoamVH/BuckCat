@@ -4,9 +4,8 @@ services:
     image: us-east1-docker.pkg.dev/{$PROJECT_ID}/buckcat-registry/buckcat-backend:latest
     secrets:
       - gcloud_credentials
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/gcloud_credentials
-      - PROJECT_ID=$PROJECT_ID
+    env_file:
+      ../.env
 
 secrets:
   gcloud_credentials:
