@@ -1,0 +1,4 @@
+services:
+  backend:
+    build: .
+    image: us-east1-docker.pkg.dev/prefab-lamp-440513-v5/buckcat-registry/buckcat-backend:latest
