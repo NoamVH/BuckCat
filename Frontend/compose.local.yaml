@@ -1,14 +1,14 @@
 services:
   backend:
     build: .
-    image: us-east1-docker.pkg.dev/{$PROJECT_ID}/buckcat-registry/buckcat-frontend:latest
-    secrets:
-      - gcloud_credentials
     env_file:
       ../.env
+    image: us-east1-docker.pkg.dev/$PROJECT_ID/buckcat-registry/buckcat-frontend:latest
+    secrets:
+      - gcloud_credentials
     ports:
       - 80:80
 
 secrets:
   gcloud_credentials:
-    file: ../.gcp-service-account-credentials.json
+    file: $GOOGLE_APPLICATION_CREDENTIALS_FILE

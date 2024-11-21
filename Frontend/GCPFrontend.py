@@ -1,9 +1,16 @@
+import logging
 import os                                                   # For file handling.
 import random                                               # For random strings.
 import string                                               # For random strings.
 from google.cloud import pubsub_v1                          # For GCP Pub/Sub clients.
 from flask import Flask, render_template, request, redirect # Flask library.
 
+
+# Uncomment for local (non-containerized) debugging.
+from dotenv import load_dotenv  
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path=env_path)
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_FILE')
 
 # Global Variables
 PROJECT_ID                = os.getenv("PROJECT_ID")
@@ -12,6 +19,10 @@ current_cat               = 0                        # For initial cat from the 
 MAX_CATS                  = 19                       # The maximum number of cats in the bucket.
 CATS_REQUESTS_TOPIC_ID    = "cats_requests"
 CATS_URLS_SUBSCRIPTION_ID = "cats_urls_subscription"
+
+
+logger = logging.getLogger(__name__)
+LOGS_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
 
 
 #Initialize the application
@@ -39,11 +50,10 @@ def publish_cat_request(publisher_client, current_cat):
     topic_path = publisher_client.topic_path(PROJECT_ID, CATS_REQUESTS_TOPIC_ID)
     data = str(current_cat).encode("utf-8")
     future = publisher_client.publish(topic_path, data)
-    print(f"Published request for cat {current_cat}: {future.result()}")
+    logger.info(f"Published request for cat {current_cat}: {future.result()}")
 
-def get_cat_url(subscriber_client, publisher_client):
+def get_cat_url(subscriber_client):
     subscription_path = subscriber_client.subscription_path(PROJECT_ID, CATS_URLS_SUBSCRIPTION_ID)
-    #streaming_pull_future = subscriber_client.pull(subscription_path, callback=lambda message: callback(message, publisher_client))
     response = subscriber_client.pull(
         request={"subscription": subscription_path, "max_messages": 1}
     )
@@ -51,7 +61,7 @@ def get_cat_url(subscriber_client, publisher_client):
     if response.received_messages:
         message = response.received_messages[0]
         cat_url = message.message.data.decode("utf-8")
-        # message.ack()
+        message.ack()
         return cat_url
     return None
 
@@ -69,7 +79,7 @@ def request_cat():
 
     publish_cat_request(publisher_client, current_cat)
 
-    cat_url = get_cat_url(subscriber_client, publisher_client)
+    cat_url = get_cat_url(subscriber_client)
 
     current_cat = iterate_cats(current_cat, MAX_CATS)
 
@@ -82,6 +92,8 @@ def explanation_page():
     return render_template('explanation.html', solution_image = solution_image)
 
 def main():  
+    logging.basicConfig(format=LOGS_FORMAT, level = logging.INFO)
+    
     subscriber_client = initialize_subscriber_client()
     publisher_client = initialize_publisher_client()
     
@@ -93,8 +105,8 @@ def main():
     
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.
-    # app.run(debug = True, host = '0.0.0.0')
-    app.run(debug = False, host = '0.0.0.0', port = 80)
+    app.run(debug = True, host = '0.0.0.0')
+    # app.run(debug = False, host = '0.0.0.0', port = 80)
 
 if __name__  == '__main__':
     main()
