@@ -1,0 +1,65 @@
+name: Build and Push Image to GAR
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GCP_REGION: us-east1
+  PROJECT_ID: ${{secrets.PROJECT_ID}}
+
+jobs:
+  Build_and_Push_to_ECR:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+        with:
+          red: queue
+      -
+        name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          project_id: ${{ env.PROJECT_ID }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+      # -
+      #   name: Login to Amazon GAR
+      #   id: login-gar
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: 'oauth2accesstoken'
+      #     password: '${{ steps.auth.outputs.access_token }}'
+      #     registry: '${{ env.AR_REPO_LOCATION }}-docker.pkg.dev'
+        
+      # -
+      #   name: Build, tag, and push the Front-End Docker Image to Amazon GAR
+      #   id: Build-Image-FrontEnd
+      #   env:
+      #     IMAGE: ./FrontEnd
+      #     REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
+      #     REPOSITORY: ${{ secrets.AWS_ECR_REGISTRY }}
+      #     IMAGE_TAG: frontend-latest
+      #   run: |
+      #     docker build -t ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
+      #     docker push ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG
+      # -
+      #   name: Build, tag, and push the Back-End Docker Image to Amazon ECR, then delete all untagged images
+      #   id: Build-Image-BackEnd
+      #   env:
+      #     IMAGE: ./BackEnd
+      #     REGISTRY: ${{ steps.logic-ecr-outputs.registry }}
+      #     REPOSITORY: ${{ secrets.AWS_ECR_REGISTRY }}
+      #     IMAGE_TAG: backend-latest
+      #   run: |
+      #     docker build -t ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG $IMAGE
+      #     docker push ${{ secrets.AWS_ECR_REGISTRY }}:$IMAGE_TAG
+      #     IMAGES_TO_DELETE=$( aws ecr list-images --region ${{ env.AWS_REGION }} --repository-name buck-cat --filter "tagStatus=UNTAGGED" --query 'imageIds[]' --output json )
+      #     aws ecr batch-delete-image --region ${{ env.AWS_REGION }} --repository-name buck-cat --image-ids "$IMAGES_TO_DELETE" || true

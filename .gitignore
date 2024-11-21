@@ -1,0 +1,5 @@
+.terraform/
+*.tfvars
+__pycache__
+*tfstate*
+.gcp-service-account-credentials.json

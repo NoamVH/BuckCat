@@ -1,0 +1,89 @@
+name: Deploy ECR Images Into EC2
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Image to ECR"]
+    types:
+      - completed
+
+env:
+  REMOTE_HOST: buck-cat.net
+  REMOTE_USER: ubuntu
+  AWS_REGION: eu-central-1
+  PROJECT_ID: ${{secrets.PROJECT_ID}}
+
+jobs:
+  Connect_to_EC2_with_SSH:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      -
+        name: Get Runnner IP Address
+        id: IP
+        uses: haythem/public-ip@v1.2
+      -
+        name: Whitelist Runner IP Address in Security Group
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.FRONTEND_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      -
+        name: Whitelist Runner IP Address in ACL
+        run: |
+          aws ec2 create-network-acl-entry \
+            --network-acl-id ${{ secrets.FRONTEND_ACL_ID }} \
+            --ingress \
+            --rule-number 1000 \
+            --protocol tcp \
+            --port-range From=22,To=22 \
+            --cidr-block ${{ steps.ip.outputs.ipv4 }}/32 \
+            --rule-action allow
+      -
+        name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/github-actions-key
+          chmod 600 ~/.ssh/github-actions-key
+          cat >> ~/.ssh/config << END
+          Host frontend
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/github-actions-key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_HOST: ${{ env.REMOTE_HOST }}
+          SSH_USER: ${{ env.REMOTE_USER }}
+          SSH_KEY: ${{ secrets.EC2_PEM }}
+      -
+        name: SSH into EC2 and boop it
+        run: |
+          ssh frontend './FrontEndCD.sh'
+      -
+        name: Revoke Runner IP Address in Security Group
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.FRONTEND_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      -
+        name: Revoke Runner IP Address in ACL
+        if: always()
+        run: |
+          aws ec2 delete-network-acl-entry \
+            --network-acl-id ${{ secrets.FRONTEND_ACL_ID }} \
+            --ingress \
+            --rule-number 1000

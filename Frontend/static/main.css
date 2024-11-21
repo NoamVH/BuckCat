@@ -1,0 +1,62 @@
+body {
+    background-color: rgb(32, 33, 36);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: whitesmoke;
+}
+
+#main {
+	width: 500px;
+	overflow: hidden;
+}
+
+#LeftSide {
+	float:left;
+}
+
+.CatButton {
+	background-color:#113f8f;
+	border-radius:28px;
+	border:1px solid #040405;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:17px;
+	padding:16px 31px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #283966;
+}
+
+.CatButton:hover {
+	background-color:#476e9e;
+}
+
+.CatButton:active {
+	position:relative;
+	top:1px;
+}
+
+#CatFormDiv {
+	display: flex;
+	justify-content: center;
+	padding-right:250px
+}
+
+#CatBox {
+	height: 600px;	
+}
+
+#CatPic {
+    width: auto;
+    max-height: 600px;
+	padding-left:200px;
+}
+
+#Introduction, #Overview, #Summary {
+	width:63%
+}
+
+table, th, td {
+	border:1px solid whitesmoke;
+	border-collapse: collapse;
+}
