@@ -3,8 +3,8 @@ from google.cloud import storage, pubsub_v1 # For GCP clients.
 import datetime                             # For URL expiration.
 
 
-# Needs to be removed in production?
-#os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../Infrastructure/prefab-lamp-440513-v5-61362c8c30d4.json'
+# Uncomment for local (non-containerized) debugging.
+#os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../.gcp-service-account-credentials.json'
 
 # Global variables - consider swapping with a configuration file.
 PROJECT_ID                    = "prefab-lamp-440513-v5"

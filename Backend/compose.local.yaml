@@ -1,7 +1,7 @@
 services:
   backend:
     build: .
-    image: buckcat-backend:latest
+    image: us-east1-docker.pkg.dev/prefab-lamp-440513-v5/buckcat-registry/buckcat-backend:latest
     secrets:
       - gcloud_credentials
     environment:
@@ -9,4 +9,4 @@ services:
 
 secrets:
   gcloud_credentials:
-    file: ../Infrastructure/prefab-lamp-440513-v5-61362c8c30d4.json
+    file: ../.gcp-service-account-credentials.json

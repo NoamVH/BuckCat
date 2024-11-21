@@ -21,6 +21,13 @@ resource "google_storage_bucket" "buckcat" {
   uniform_bucket_level_access = true
 }
 
+resource "google_artifact_registry_repository" "buckcat_registry" {
+  location      = var.region
+  repository_id = "buckcat-registry"
+  description   = "BuckCat's Docker Repository"
+  format        = "DOCKER"
+}
+
 # resource "google_cloud_run_service" "buckcat_backend_service" {
 #   name     = "buckcat-backend-service"
 #   location = var.region

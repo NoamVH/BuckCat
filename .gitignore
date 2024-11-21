@@ -2,4 +2,4 @@
 *.tfvars
 __pycache__
 *tfstate*
-prefab-lamp-440513-v5-61362c8c30d4*
+.gcp-service-account-credentials.json
