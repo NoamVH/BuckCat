@@ -8,6 +8,9 @@ on:
   push:
     branches:
       - main
+      - feature/cicd
+    paths:
+      - ".github/workflows/ci-pipeline.yaml"
 
 env:
   GCP_REGION: us-east1
