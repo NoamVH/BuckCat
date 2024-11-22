@@ -26,7 +26,6 @@ jobs:
         name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
-          token_format: access_token
           project_id: ${{secrets.PROJECT_ID}}
           workload_identity_provider: 'projects/765231548917/locations/global/workloadIdentityPools/buckcat-github'
       # -
