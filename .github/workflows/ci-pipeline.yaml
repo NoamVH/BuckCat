@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
       -  
         name: Authenticate and Login
-        uses: ./.github/workflows/gcp-and-docker-auth.yaml
+        uses: ./.github/workflows/composites/gcp-and-docker-auth.yaml
         with:
           gcp_region: ${{env.GCP_REGION}}
           service_account_mail: ${{secrets.SERVICE_ACCOUNT_MAIL}}
@@ -41,9 +41,12 @@ jobs:
   Build_and_Push_Backend_to_GAR:
     runs-on: ubuntu-latest
     steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
       -  
         name: Authenticate and Login
-        uses: ./.github/workflows/gcp-and-docker-auth.yaml
+        uses: ./.github/workflows/composites/gcp-and-docker-auth.yaml
         with:
           gcp_region: ${{env.GCP_REGION}}
           service_account_mail: ${{secrets.SERVICE_ACCOUNT_MAIL}}
