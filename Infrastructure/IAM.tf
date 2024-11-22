@@ -75,6 +75,12 @@ resource "google_service_account_iam_member" "github_workload_identity_iam_memeb
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.buckcat_workload_identity_pool.name}/attribute.attribute.repository_owner_id/16431599"
 }
 
+resource "google_service_account_iam_member" "github_workload_identity_tokens_creator" {
+  service_account_id = google_service_account.github_workload_identity_service_account.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.buckcat_workload_identity_pool.name}/attribute.attribute.repository_owner_id/16431599"
+}
+
 resource "google_artifact_registry_repository_iam_member" "github_workload_identity_gar_writer" {
   project    = var.project
   location   = var.region
