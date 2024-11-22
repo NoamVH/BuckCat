@@ -16,12 +16,12 @@ env:
   GCP_REGION: us-east1
 
 jobs:
-  Build_and_Push_to_ECR:
+  Build_and_Push_to_GAR:
     runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Authenticate to GCP
         uses: google-github-actions/auth@v2
