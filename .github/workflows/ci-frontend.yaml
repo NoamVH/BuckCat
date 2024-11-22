@@ -1,4 +1,4 @@
-name: Build and Push Image to GAR
+name: Build and Push Front Image to GAR
 
 permissions:
   id-token: write
@@ -11,6 +11,8 @@ on:
       - feature/cicd
     paths:
       - .github/workflows/ci-frontend.yaml
+      - Frontend/
+
 
 env:
   GCP_REGION: us-east1
