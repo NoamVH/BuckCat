@@ -62,3 +62,23 @@ resource "google_iam_workload_identity_pool_provider" "buckcat_github_identity_f
       assertion.repository_id == "609320706"
   EOT
 }
+
+resource "google_service_account" "github_workload_identity_service_account" {
+  account_id   = "github-service-account"
+  display_name = "GitHub Workload Identity Service Acccount"
+  project      = var.project
+}
+
+resource "google_service_account_iam_member" "github_workload_identity_iam_memeber" {
+  service_account_id = google_service_account.github_workload_identity_service_account.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.buckcat_workload_identity_pool.name}/attribute.attribute.repository_owner_id/16431599"
+}
+
+resource "google_artifact_registry_repository_iam_member" "github_workload_identity_gar_writer" {
+  project    = var.project
+  location   = var.region
+  repository = google_artifact_registry_repository.buckcat_registry.name
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
