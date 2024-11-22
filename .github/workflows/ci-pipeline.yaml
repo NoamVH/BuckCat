@@ -40,13 +40,14 @@ jobs:
           username: oauth2accesstoken
           password: ${{steps.gcp-auth.outputs.access_token}}
       -
-        name: Build and Push Frontenv Container Image
+        name: Build and Push Frontend Container Image
         id: build-frontend-image
         env:
-          COMPOSEFILE: ./Frontend/compose.yaml
+          COMPOSE_FILE: ./Frontend/compose.yaml
           PROJECT_ID: ${{secrets.PROJECT_ID}}
         run: |
-          docker compose -f $DIRECTORY build --push --no-cache
+          docker compose -f $COMPOSE_FILE build
+          docker compose push
       # -
       #   name: Build and Push Backend Container Image
       #   id: build-backend-image
