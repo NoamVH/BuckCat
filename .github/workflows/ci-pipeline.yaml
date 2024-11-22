@@ -27,7 +27,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           project_id: ${{secrets.PROJECT_ID}}
-          workload_identity_provider: 'projects/765231548917/locations/global/workloadIdentityPools/buckcat-workload-identity-pool/'
+          workload_identity_provider: 'principal://iam.googleapis.com/projects/765231548917/locations/global/workloadIdentityPools/buckcat-workload-identity-pool/subject/SUBJECT_ATTRIBUTE_VALUE'
       # -
       #   name: Login to Amazon GAR
       #   id: login-gar
