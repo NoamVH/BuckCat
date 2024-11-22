@@ -19,6 +19,9 @@ jobs:
   Build_and_Push_Frontend_to_GAR:
     runs-on: ubuntu-latest
     steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
       -  
         name: Authenticate and Login
         uses: ./.github/workflows/gcp-and-docker-auth.yaml
