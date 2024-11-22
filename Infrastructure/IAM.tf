@@ -50,12 +50,12 @@ resource "google_iam_workload_identity_pool_provider" "buckcat_github_identity_f
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
   attribute_mapping = {
-    "google.subject"          = "assertion.sub"
-    "attribute.actor"         = "assertion.actor"
-    "attribute.aud"           = "assertion.aud"
+    "google.subject"                = "assertion.sub"
+    "attribute.actor"               = "assertion.actor"
+    "attribute.aud"                 = "assertion.aud"
     "attribute.repository_owner_id" = "assertion.repository_owner_id"
-    "attribute.repository_id" = "assertion.repository_id"
-    
+    "attribute.repository_id"       = "assertion.respository_id"
+
   }
   attribute_condition = <<EOT
       assertion.repository_owner_id == "16431599" &&
