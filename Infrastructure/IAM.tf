@@ -78,7 +78,7 @@ resource "google_service_account_iam_member" "github_workload_identity_iam_memeb
 resource "google_artifact_registry_repository_iam_member" "github_workload_identity_gar_writer" {
   project    = var.project
   location   = var.region
-  repository = google_artifact_registry_repository.buckcat_registry.name
+  repository = google_artifact_registry_repository.buckcat_registry.repository_id
   role       = "roles/artifactregistry.writer"
   member     = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }

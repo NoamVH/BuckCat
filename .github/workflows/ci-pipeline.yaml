@@ -29,7 +29,6 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           token_format: access_token
-          project_id: ${{secrets.PROJECT_ID}}
           workload_identity_provider: projects/765231548917/locations/global/workloadIdentityPools/buckcat-workload-identity-pool/providers/buckcat-github
           service_account: ${{secrets.SERVICE_ACCOUNT_MAIL}}
       -
