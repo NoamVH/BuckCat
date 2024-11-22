@@ -11,7 +11,6 @@ on:
 
 env:
   GCP_REGION: us-east1
-  PROJECT_ID: ${{secrets.PROJECT_ID}}
 
 jobs:
   Build_and_Push_to_ECR:
@@ -20,16 +19,13 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
-        with:
-          red: queue
       -
         name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
           token_format: access_token
-          project_id: ${{ env.PROJECT_ID }}
-          service_account: ${{ env.SERVICE_ACCOUNT }}
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{secrets.PROJECT_ID}}
+          workload_identity_provider: 'projects/765231548917/locations/global/workloadIdentityPools/buckcat-github/subject/'
       # -
       #   name: Login to Amazon GAR
       #   id: login-gar
