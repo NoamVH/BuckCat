@@ -11,7 +11,7 @@ on:
       - feature/cicd
     paths:
       - ".github/workflows/ci-pipeline.yaml"
-#
+
 env:
   GCP_REGION: us-east1
 
@@ -28,7 +28,7 @@ jobs:
         with:
           token_format: access_token
           project_id: ${{secrets.PROJECT_ID}}
-          workload_identity_provider: 'projects/765231548917/locations/global/workloadIdentityPools/buckcat-github/subject/'
+          workload_identity_provider: 'projects/765231548917/locations/global/workloadIdentityPools/buckcat-github'
       # -
       #   name: Login to Amazon GAR
       #   id: login-gar
