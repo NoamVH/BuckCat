@@ -2,6 +2,8 @@ import sys
 import logging
 import os                                   # For environment variables.
 from google.cloud import storage, pubsub_v1 # For GCP clients.
+from google.auth.transport import requests
+from google.auth import default, compute_engine
 import datetime                             # For URL expiration.
 
 
@@ -18,9 +20,19 @@ BUCKCAT_NAME                   = "buckcat"
 CATS_URLS_TOPIC_ID             = "cats_urls"
 CATS_REQUESTS_SUBSCRIPTION_ID  = "cats_requests_subscription"
 
-
 logger = logging.getLogger(__name__)
 LOGS_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
+
+def initiazlie_signing_credentials():
+    credentials, _ = default()
+
+    auth_request = requests.Request()
+    credentials.refresh(auth_request)
+
+    return compute_engine.IDTokenCredentials(
+        auth_request,
+        "",
+        service_account_email=credentials.service_account_email)
 
 def initialize_buckcat_client():
     storage_client = storage.Client()
@@ -42,11 +54,12 @@ def get_cats_list(buckcat):
     
     return cats_list
 
-def generate_cat_url(buckcat, cat_name):
+def generate_cat_url(signing_credentials, buckcat, cat_name):
     cat = buckcat.blob(cat_name)
 
     cat_url = cat.generate_signed_url(
         version="v4",
+        credentials = signing_credentials,
         expiration=datetime.timedelta(minutes=10),
         method="GET"
     )
@@ -59,17 +72,17 @@ def publish_cat_url(publisher_client, cat_url):
     future = publisher_client.publish(topic_path, data)
     logger.info(future.result())
 
-def callback(message: pubsub_v1.subscriber.message.Message, publisher_client, buckcat, cats_list):
+def callback(message: pubsub_v1.subscriber.message.Message, signing_credentials, publisher_client, buckcat, cats_list):
     logger.info(f"Received {message}.")
     # The topic message includes a single integer (which comes as a string).
     cat_request = int(message.data.decode('utf-8'))
-    cat_url = generate_cat_url(buckcat, cats_list[cat_request])
+    cat_url = generate_cat_url(signing_credentials, buckcat, cats_list[cat_request])
     publish_cat_url(publisher_client, cat_url)
     message.ack()
 
-def get_cat_request(subscriber_client, publisher_client, buckcat, cats_list):
+def get_cat_request(signing_credentials, subscriber_client, publisher_client, buckcat, cats_list):
     subscription_path = subscriber_client.subscription_path(PROJECT_ID, CATS_REQUESTS_SUBSCRIPTION_ID)
-    streaming_pull_future = subscriber_client.subscribe(subscription_path, callback=lambda message: callback(message, publisher_client, buckcat, cats_list))
+    streaming_pull_future = subscriber_client.subscribe(subscription_path, callback=lambda message: callback(message, signing_credentials, publisher_client, buckcat, cats_list))
     
     logger.info(f"Listening for messages on {subscription_path}.\n")
     # Wrap subscriber in a 'with' block to automatically call close() when done.
@@ -85,13 +98,15 @@ def get_cat_request(subscriber_client, publisher_client, buckcat, cats_list):
 def main():
     logging.basicConfig(format=LOGS_FORMAT, level = logging.INFO)
     
+    signing_credentials = initiazlie_signing_credentials()
+
     buckcat = initialize_buckcat_client()
     subscriber_client = initialize_subscriber_client()
     publisher_client = initialize_publisher_client()
     
     cats_list = get_cats_list(buckcat)
 
-    get_cat_request(subscriber_client, publisher_client, buckcat, cats_list)
+    get_cat_request(signing_credentials, subscriber_client, publisher_client, buckcat, cats_list)
         
         
 if __name__ == "__main__":

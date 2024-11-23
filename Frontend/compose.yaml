@@ -1,6 +1,9 @@
 services:
   backend:
-    build: .
-    image: us-east1-docker.pkg.dev/{$PROJECT_ID}/buckcat-registry/buckcat-frontend:latest
+    build:
+      context: .
+      args:
+        - PROJECT_ID
+    image: us-east1-docker.pkg.dev/$PROJECT_ID/buckcat-registry/buckcat-frontend:latest
     ports:
       - 80:80

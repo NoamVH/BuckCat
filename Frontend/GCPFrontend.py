@@ -1,9 +1,9 @@
 import logging
-import os                                                   # For file handling.
-import random                                               # For random strings.
-import string                                               # For random strings.
-from google.cloud import pubsub_v1                          # For GCP Pub/Sub clients.
-from flask import Flask, render_template, request, redirect # Flask library.
+import os                                # For file handling.
+import random                            # For random strings.
+import string                            # For random strings.
+from google.cloud import pubsub_v1       # For GCP Pub/Sub clients.
+from flask import Flask, render_template # Flask library.
 
 
 # Uncomment for local (non-containerized) debugging.
@@ -57,11 +57,20 @@ def get_cat_url(subscriber_client):
     response = subscriber_client.pull(
         request={"subscription": subscription_path, "max_messages": 1}
     )
+
+    ack_ids = []
+    for received_message in response.received_messages:
+        print(f"Received: {received_message.message.data}.")
+        ack_ids.append(received_message.ack_id)
+
     
     if response.received_messages:
         message = response.received_messages[0]
         cat_url = message.message.data.decode("utf-8")
-        message.ack()
+        subscriber_client.acknowledge(
+            request={"subscription": subscription_path, "ack_ids": ack_ids}
+        )
+
         return cat_url
     return None
 
