@@ -2,3 +2,5 @@ services:
   backend:
     build: .
     image: us-east1-docker.pkg.dev/$PROJECT_ID/buckcat-registry/buckcat-backend:latest
+    environment:
+      PROJECT_ID: $PROJECT_ID

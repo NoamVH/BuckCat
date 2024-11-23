@@ -11,25 +11,25 @@ resource "google_storage_bucket_iam_member" "local_testing_iam_member" {
   member = "serviceAccount:${google_service_account.local_testing_service_account.email}"
 }
 
-resource "google_pubsub_subscription_iam_member" "cats_requests_subscriber" {
+resource "google_pubsub_subscription_iam_member" "local_testing_cats_requests_subscriber" {
   subscription = google_pubsub_subscription.cats_requests_subscription.id
   role         = "roles/pubsub.subscriber"
   member       = "serviceAccount:${google_service_account.local_testing_service_account.email}"
 }
 
-resource "google_pubsub_topic_iam_member" "cats_requests_publisher" {
+resource "google_pubsub_topic_iam_member" "local_testing_cats_requests_publisher" {
   topic  = google_pubsub_topic.cats_requests_topic.id
   role   = "roles/pubsub.publisher"
   member = "serviceAccount:${google_service_account.local_testing_service_account.email}"
 }
 
-resource "google_pubsub_subscription_iam_member" "cats_urls_subscriber" {
+resource "google_pubsub_subscription_iam_member" "local_testing_cats_urls_subscriber" {
   subscription = google_pubsub_subscription.cats_urls_subscription.id
   role         = "roles/pubsub.subscriber"
   member       = "serviceAccount:${google_service_account.local_testing_service_account.email}"
 }
 
-resource "google_pubsub_topic_iam_member" "cats_urls_publisher" {
+resource "google_pubsub_topic_iam_member" "local_testing_cats_urls_publisher" {
   topic  = google_pubsub_topic.cats_urls_topic.id
   role   = "roles/pubsub.publisher"
   member = "serviceAccount:${google_service_account.local_testing_service_account.email}"
@@ -81,4 +81,48 @@ resource "google_artifact_registry_repository_iam_member" "github_workload_ident
   repository = google_artifact_registry_repository.buckcat_registry.name
   role       = "roles/artifactregistry.writer"
   member     = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
+
+# Compute Instances Permissions
+resource "google_service_account" "servers_service_account" {
+  account_id   = "instances-service-account"
+  display_name = "BuckCat Instances Service Account"
+}
+
+resource "google_artifact_registry_repository_iam_member" "backend_instance_gar_reader" {
+  project    = var.project
+  location   = google_artifact_registry_repository.buckcat_registry.location
+  repository = google_artifact_registry_repository.buckcat_registry.name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${google_service_account.servers_service_account.email}"
+}
+
+resource "google_storage_bucket_iam_member" "buckcat_instance_buckcat_reader" {
+  bucket = google_storage_bucket.buckcat.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.servers_service_account.email}"
+}
+
+resource "google_pubsub_subscription_iam_member" "buckcat_instance_cats_requests_subscriber" {
+  subscription = google_pubsub_subscription.cats_requests_subscription.id
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:${google_service_account.servers_service_account.email}"
+}
+
+resource "google_pubsub_topic_iam_member" "buckcat_instance_cats_requests_publisher" {
+  topic  = google_pubsub_topic.cats_requests_topic.id
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.servers_service_account.email}"
+}
+
+resource "google_pubsub_subscription_iam_member" "buckcat_instance_cats_urls_subscriber" {
+  subscription = google_pubsub_subscription.cats_urls_subscription.id
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:${google_service_account.servers_service_account.email}"
+}
+
+resource "google_pubsub_topic_iam_member" "buckcat_instance_cats_urls_publisher" {
+  topic  = google_pubsub_topic.cats_urls_topic.id
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.servers_service_account.email}"
 }
