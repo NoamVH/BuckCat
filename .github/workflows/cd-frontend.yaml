@@ -1,0 +1,40 @@
+name: Deploy Latest Frontend Image Into GCI
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Frontend Image to GAR"]
+    types:
+    - completed
+
+env:
+  GCP_REGION: us-east1
+  PROJECT_ID: ${{secrets.PROJECT_ID}}
+
+jobs:
+  Deploy_Frontend_to_GCI:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Authenticate to GCP
+        id: gcp-auth
+        uses: google-github-actions/auth@v2
+        with:
+          create_credentials_file: true
+          token_format: access_token
+          workload_identity_provider: projects/765231548917/locations/global/workloadIdentityPools/buckcat-workload-identity-pool/providers/buckcat-github
+          service_account: ${{secrets.SERVICE_ACCOUNT_MAIL}}
+      -
+        name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      -
+        name: Update Container in Frontend Instance
+        run: |
+          gcloud compute instances update-container buckcat-frontend-instance \
+          --container-image ${{GCP_REGION}}-docker.pkg.dev/${{PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
