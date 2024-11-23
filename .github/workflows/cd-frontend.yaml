@@ -9,6 +9,13 @@ on:
     workflows: ["Build and Push Frontend Image to GAR"]
     types:
     - completed
+  push:
+    branches:
+      - main
+      - feature/cd
+    paths:
+      - .github/workflows/cd-frontend.yaml
+
 
 env:
   GCP_REGION: us-east1
