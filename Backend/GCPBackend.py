@@ -18,6 +18,7 @@ BUCKCAT_NAME                   = "buckcat"
 CATS_URLS_TOPIC_ID             = "cats_urls"
 CATS_REQUESTS_SUBSCRIPTION_ID  = "cats_requests_subscription"
 
+print(PROJECT_ID) # Checking that the environment variable is passed correctly to the container.
 
 logger = logging.getLogger(__name__)
 LOGS_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
