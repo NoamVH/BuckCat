@@ -18,8 +18,6 @@ BUCKCAT_NAME                   = "buckcat"
 CATS_URLS_TOPIC_ID             = "cats_urls"
 CATS_REQUESTS_SUBSCRIPTION_ID  = "cats_requests_subscription"
 
-print(PROJECT_ID) # Checking that the environment variable is passed correctly to the container.
-
 logger = logging.getLogger(__name__)
 LOGS_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
 
@@ -85,6 +83,8 @@ def get_cat_request(subscriber_client, publisher_client, buckcat, cats_list):
 
 def main():
     logging.basicConfig(format=LOGS_FORMAT, level = logging.INFO)
+    
+    logger.info("PROJECT_ID is: " + PROJECT_ID) # Checking that the environment variable is passed correctly to the container.
     
     buckcat = initialize_buckcat_client()
     subscriber_client = initialize_subscriber_client()
