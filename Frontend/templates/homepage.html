@@ -10,7 +10,14 @@
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
         the argument for the static folder and the name of the file itself need to be set.
     -->
-    <title>Buck-Cat v4.0</title>
+    <title>BuckCat v4.0</title>
+
+    <!-- Open Graph Tags for banners for websites and chat applications. -->
+    <meta property="og:title" content="BuckCat 4.0" />
+    <meta property="og:description" content="It's a bucket, with cats, a buckcat if you will." />
+    <meta property="og:image" content="{{ url_for('static', filename='Buckcat.png') }}" />
+    <meta property="og:url" content="https://buckcat.info/" />
+    <meta property="og:type" content="website" />
 </head>
 <body>
     <div id="Title">
@@ -19,7 +26,7 @@
     <div id="Main">
         <div id="LeftSide">
             <div>
-                <img src="https://media.tenor.com/6M-2KmXuTCcAAAAC/bucket-tf2.gif" id="ThisIsABucket">
+                <img src="https://tenor.com/view/this-is-a-bucket-team-fortress-tf-gif-15812649" id="ThisIsABucket">
             </div>
             <div>
                 <h2>This bucket has cats in it!! (Now on GCP with Terraform)</h2>

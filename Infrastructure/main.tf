@@ -41,6 +41,7 @@ resource "google_compute_instance" "buckcat_frontend_instance" {
   network_interface {
     network = google_compute_network.buckcat_frontend_network.name
     access_config {
+      nat_ip = google_compute_address.frontend_static_ip_address.address
     }
   }
 
@@ -65,6 +66,7 @@ resource "google_compute_instance" "buckcat_backend_instance" {
   network_interface {
     network = google_compute_network.buckcat_backend_network.name
     access_config {
+      # Ephemeral IP address.
     }
   }
 
