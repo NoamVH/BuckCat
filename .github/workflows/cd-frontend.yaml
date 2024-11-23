@@ -43,5 +43,5 @@ jobs:
       -
         name: Update Container in Frontend Instance
         run: |
-          gcloud compute instances update-container buckcat-frontend-instance \
+          gcloud compute instances update-container buckcat-frontend-instance --zone ${{env.GCP_REGION}}-b \
           --container-image ${{env.GCP_REGION}}-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
