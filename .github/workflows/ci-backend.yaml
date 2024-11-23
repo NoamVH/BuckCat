@@ -47,5 +47,5 @@ jobs:
           COMPOSE_FILE: ./Backend/compose.yaml
           PROJECT_ID: ${{secrets.PROJECT_ID}}
         run: |
-          docker compose -f $COMPOSE_FILE build
+          docker compose -f $COMPOSE_FILE -e PROJECT_ID build
           docker compose push
