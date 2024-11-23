@@ -14,8 +14,8 @@
 
     <!-- Open Graph Tags for banners for websites and chat applications. -->
     <meta property="og:title" content="BuckCat 4.0" />
-    <meta property="og:description" content="It's a bucket, with cats, a buckcat if you will." />
-    <meta property="og:image" content="{{ url_for('static', filename='Buckcat.png') }}" />
+    <meta property="og:description" content="It's a bucket, with cats, a buckcat, if you will." />
+    <meta property="og:image" content="{{ url_for('static', filename='Buckcat.jpg') }}" />
     <meta property="og:url" content="https://buckcat.info/" />
     <meta property="og:type" content="website" />
 </head>
@@ -26,7 +26,7 @@
     <div id="Main">
         <div id="LeftSide">
             <div>
-                <img src="https://tenor.com/view/this-is-a-bucket-team-fortress-tf-gif-15812649" id="ThisIsABucket">
+                <img src="{{ url_for('static/Images', filename='thisisabucket.gif') }}" id="ThisIsABucket">
             </div>
             <div>
                 <h2>This bucket has cats in it!! (Now on GCP with Terraform)</h2>
