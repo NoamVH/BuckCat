@@ -103,6 +103,12 @@ resource "google_storage_bucket_iam_member" "buckcat_instance_buckcat_reader" {
   member = "serviceAccount:${google_service_account.servers_service_account.email}"
 }
 
+resource "google_service_account_iam_member" "buckcat_instance_buckcat_signer" {
+  service_account_id = google_service_account.servers_service_account.id
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.servers_service_account.email}"
+}
+
 resource "google_pubsub_subscription_iam_member" "buckcat_instance_cats_requests_subscriber" {
   subscription = google_pubsub_subscription.cats_requests_subscription.id
   role         = "roles/pubsub.subscriber"

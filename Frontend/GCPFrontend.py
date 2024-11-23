@@ -1,16 +1,16 @@
 import logging
-import os                                                   # For file handling.
-import random                                               # For random strings.
-import string                                               # For random strings.
-from google.cloud import pubsub_v1                          # For GCP Pub/Sub clients.
-from flask import Flask, render_template, request, redirect # Flask library.
+import os                                # For file handling.
+import random                            # For random strings.
+import string                            # For random strings.
+from google.cloud import pubsub_v1       # For GCP Pub/Sub clients.
+from flask import Flask, render_template # Flask library.
 
 
 # Uncomment for local (non-containerized) debugging.
-from dotenv import load_dotenv  
-env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
-load_dotenv(dotenv_path=env_path)
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_FILE')
+# from dotenv import load_dotenv  
+# env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+# load_dotenv(dotenv_path=env_path)
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_FILE')
 
 # Global Variables
 PROJECT_ID                = os.getenv("PROJECT_ID")
@@ -57,11 +57,20 @@ def get_cat_url(subscriber_client):
     response = subscriber_client.pull(
         request={"subscription": subscription_path, "max_messages": 1}
     )
+
+    ack_ids = []
+    for received_message in response.received_messages:
+        print(f"Received: {received_message.message.data}.")
+        ack_ids.append(received_message.ack_id)
+
     
     if response.received_messages:
         message = response.received_messages[0]
         cat_url = message.message.data.decode("utf-8")
-        message.ack()
+        subscriber_client.acknowledge(
+            request={"subscription": subscription_path, "ack_ids": ack_ids}
+        )
+
         return cat_url
     return None
 
@@ -105,8 +114,8 @@ def main():
     
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.
-    app.run(debug = True, host = '0.0.0.0')
-    # app.run(debug = False, host = '0.0.0.0', port = 80)
+    # app.run(debug = True, host = '0.0.0.0')
+    app.run(debug = False, host = '0.0.0.0', port = 80)
 
 if __name__  == '__main__':
     main()

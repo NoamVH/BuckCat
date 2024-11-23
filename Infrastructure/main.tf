@@ -28,28 +28,28 @@ resource "google_artifact_registry_repository" "buckcat_registry" {
   format        = "DOCKER"
 }
 
-# resource "google_compute_instance" "buckcat_frontend_instance" {
-#   name         = "buckcat-frontend-instance"
-#   machine_type = "e2-micro"
+resource "google_compute_instance" "buckcat_frontend_instance" {
+  name         = "buckcat-frontend-instance"
+  machine_type = "e2-micro"
 
-#   boot_disk {
-#     initialize_params {
-#       image = "cos-cloud/cos-stable"
-#     }
-#   }
+  boot_disk {
+    initialize_params {
+      image = "cos-cloud/cos-stable"
+    }
+  }
 
-#   network_interface {
-#     network = google_compute_network.buckcat_front_network.name
-#     access_config {
-#     }
-#   }
+  network_interface {
+    network = google_compute_network.buckcat_frontend_network.name
+    access_config {
+    }
+  }
 
-#  service_account {
-#   # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-#   email  = google_service_account.servers_service_account.email
-#   scopes = ["cloud-platform"]
-# }
-# }
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.servers_service_account.email
+    scopes = ["cloud-platform"]
+  }
+}
 
 resource "google_compute_instance" "buckcat_backend_instance" {
   name                      = "buckcat-backend-instance"

@@ -1,7 +1,3 @@
-output "ip" {
-  value = google_compute_instance.buckcat_backend_instance.network_interface.0.network_ip
-}
-
 output "dev_service_account_email" {
   value = google_service_account.local_testing_service_account.email
 }
