@@ -83,6 +83,15 @@ resource "google_artifact_registry_repository_iam_member" "github_workload_ident
   member     = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }
 
+resource "google_compute_instance_iam_member" "github_conatiner_updater" {
+  project       = var.project
+  zone          = var.zone
+  instance_name = google_compute_instance.buckcat_frontend_instance.name
+  role          = "roles/compute.osLogin"
+  member        = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+
+}
+
 # Compute Instances Permissions
 resource "google_service_account" "servers_service_account" {
   account_id   = "instances-service-account"

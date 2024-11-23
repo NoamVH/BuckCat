@@ -19,7 +19,9 @@ on:
 
 env:
   GCP_REGION: us-east1
+  INSTANCE: buckcat-frontend-instance
   PROJECT_ID: ${{secrets.PROJECT_ID}}
+
 
 jobs:
   Deploy_Frontend_to_GCI:
@@ -42,6 +44,8 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       -
         name: Update Container in Frontend Instance
+        env:
+            GCP_ZONE: ${{env.GCP_REGION}}-b
+            CONTAINER_IMAGE: ${{env.GCP_REGION}}-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
         run: |
-          gcloud compute instances update-container buckcat-frontend-instance --zone ${{env.GCP_REGION}}-b \
-          --container-image ${{env.GCP_REGION}}-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
+          gcloud compute instances update-container ${{env.INSTANCE}} --zone $GCP_ZONE --container-image $CONTAINER_IMAGE
