@@ -1,5 +1,8 @@
 FROM python:3.13-slim-bookworm
 
+ARG PROJECT_ID
+ENV PROJECT_ID=${PROJECT_ID}
+
 COPY ./GCPBackend.py ./requirements.txt /BuckCat/
 WORKDIR /BuckCat
 
