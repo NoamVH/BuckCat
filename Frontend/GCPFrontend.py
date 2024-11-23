@@ -7,10 +7,10 @@ from flask import Flask, render_template, request, redirect # Flask library.
 
 
 # Uncomment for local (non-containerized) debugging.
-# from dotenv import load_dotenv  
-# env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
-# load_dotenv(dotenv_path=env_path)
-# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_FILE')
+from dotenv import load_dotenv  
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path=env_path)
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_FILE')
 
 # Global Variables
 PROJECT_ID                = os.getenv("PROJECT_ID")
@@ -105,8 +105,8 @@ def main():
     
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.
-    # app.run(debug = True, host = '0.0.0.0')
-    app.run(debug = False, host = '0.0.0.0', port = 80)
+    app.run(debug = True, host = '0.0.0.0')
+    # app.run(debug = False, host = '0.0.0.0', port = 80)
 
 if __name__  == '__main__':
     main()
