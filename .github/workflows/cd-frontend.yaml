@@ -48,4 +48,4 @@ jobs:
             GCP_ZONE: ${{env.GCP_REGION}}-b
             CONTAINER_IMAGE: ${{env.GCP_REGION}}-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
         run: |
-          gcloud compute ssh --zone "$GCP_ZONE" "${{env.INSTANCE}}" --project "${{env.PROJECT_ID}}" --command echo "touch banana.txt"
+          gcloud compute ssh --zone "$GCP_ZONE" "${{env.INSTANCE}}" --project "${{env.PROJECT_ID}}" --command "touch banana.txt"
