@@ -39,23 +39,23 @@ jobs:
           token_format: access_token
           workload_identity_provider: projects/765231548917/locations/global/workloadIdentityPools/buckcat-workload-identity-pool/providers/buckcat-github
           service_account: ${{secrets.SERVICE_ACCOUNT_MAIL}}
-      # -
-      #   name: Set up Cloud SDK
-      #   uses: google-github-actions/setup-gcloud@v2
-      # -
-      #   name: Update Container in Frontend Instance
-      #   env:
-      #       GCP_ZONE: ${{env.GCP_REGION}}-b
-      #       CONTAINER_IMAGE: ${{env.GCP_REGION}}-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
-      #   run: |
-      #     gcloud compute ssh --zone "$GCP_ZONE" "${{env.INSTANCE}}" --project "${{env.PROJECT_ID}}" --command "touch banana.txt"
-      - 
-        id: 'compute-ssh'
-        uses: 'google-github-actions/ssh-compute@v1'
+      -
+        name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      -
+        name: Update Container in Frontend Instance
         env:
-          ZONE: ${{env.GCP_REGION}}-b
-        with:
-          instance_name: ${{env.INSTANCE}}
-          zone: ${{env.ZONE}}
-          ssh_private_key: '${{secrets.FRONTEND_SSH_KEY}}'
-          command: 'touch banana.txt'
+            GCP_ZONE: ${{env.GCP_REGION}}-b
+            CONTAINER_IMAGE: ${{env.GCP_REGION}}-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
+        run: |
+          gcloud compute ssh --zone "$GCP_ZONE" "${{env.INSTANCE}}" --project "${{env.PROJECT_ID}}" --command "cd /home && touch banana.txt"
+      # - 
+      #   id: 'compute-ssh'
+      #   uses: 'google-github-actions/ssh-compute@v1'
+      #   env:
+      #     ZONE: ${{env.GCP_REGION}}-b
+      #   with:
+      #     instance_name: ${{env.INSTANCE}}
+      #     zone: ${{env.ZONE}}
+      #     ssh_private_key: '${{secrets.FRONTEND_SSH_KEY}}'
+      #     command: 'touch banana.txt'
