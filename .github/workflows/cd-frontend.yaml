@@ -46,6 +46,6 @@ jobs:
           ZONE: ${{env.GCP_REGION}}-b
         with:
           instance_name: ${{env.INSTANCE}}
-          zone: $ZONE
+          zone: ${{env.ZONE}}
           ssh_private_key: '${{secrets.FRONTEND_SSH_KEY}}'
           command: 'touch banana.txt'
