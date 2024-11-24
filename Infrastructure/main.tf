@@ -52,11 +52,6 @@ resource "google_compute_instance" "buckcat_frontend_instance" {
   }
 }
 
-resource "google_os_login_ssh_public_key" "github_actions_public_ssh_key" {
-  user = "github-runner"
-  key  = file("github-actions-key.pub")
-}
-
 resource "google_compute_instance" "buckcat_backend_instance" {
   name                      = "buckcat-backend-instance"
   machine_type              = "e2-micro"

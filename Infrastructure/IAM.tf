@@ -87,8 +87,14 @@ resource "google_compute_instance_iam_member" "github_conatiner_updater" {
   project       = var.project
   zone          = var.zone
   instance_name = google_compute_instance.buckcat_frontend_instance.name
-  role          = "roles/compute.osLogin"
+  role          = "roles/compute.instanceAdmin.v1"
   member        = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
+
+resource "google_project_iam_member" "github_compute_viewer" {
+  project = var.project
+  role    = "roles/compute.viewer"
+  member  = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }
 
 # Compute Instances Permissions
