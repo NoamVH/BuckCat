@@ -89,7 +89,6 @@ resource "google_compute_instance_iam_member" "github_conatiner_updater" {
   instance_name = google_compute_instance.buckcat_frontend_instance.name
   role          = "roles/compute.osLogin"
   member        = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
-
 }
 
 # Compute Instances Permissions
