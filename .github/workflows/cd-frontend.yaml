@@ -62,4 +62,5 @@ jobs:
             docker stop $(docker ps -q)
             docker container prune -f
             docker image prune -a -f
+            docker-credential-gcr configure-docker --registries=us-east1-docker.pkg.dev
             docker run -d -p 80:80 us-east1-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
