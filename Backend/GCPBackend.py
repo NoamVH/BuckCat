@@ -1,10 +1,10 @@
-import sys
-import logging
-import os                                   # For environment variables.
-from google.cloud import storage, pubsub_v1 # For GCP clients.
-from google.auth.transport import requests
-from google.auth import default, compute_engine
-import datetime                             # For URL expiration.
+import sys                                      # For exit(0) in main for keyboard interrupt.
+import logging                                  # For logs.
+import os                                       # For environment variables.
+from google.cloud import storage, pubsub_v1     # For GCP clients.
+from google.auth.transport import requests      # For VM authentication as a service account.
+from google.auth import default, compute_engine # For VM authentication as a service account.
+import datetime                                 # For URL expiration.
 
 
 # Uncomment for local (non-containerized) debugging.
@@ -20,8 +20,10 @@ BUCKCAT_NAME                   = "buckcat"
 CATS_URLS_TOPIC_ID             = "cats_urls"
 CATS_REQUESTS_SUBSCRIPTION_ID  = "cats_requests_subscription"
 
+
 logger = logging.getLogger(__name__)
 LOGS_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
+
 
 def initiazlie_signing_credentials():
     credentials, _ = default()

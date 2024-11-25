@@ -6,3 +6,4 @@ __pycache__
 *.env
 # Ignore generated credentials from google-github-actions/auth (Google's recommendation in https://github.com/google-github-actions/auth?tab=readme-ov-file#prerequisites)
 gha-creds-*.json
+*.pub

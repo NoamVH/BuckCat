@@ -98,7 +98,7 @@ def request_cat():
 @app.route('/explanation')
 def explanation_page():
     solution_image = app.config['SOLUTION_IMAGE']
-    return render_template('explanation.html', solution_image = solution_image)
+    return render_template('explanation-gcp.html', solution_image = solution_image)
 
 def main():  
     logging.basicConfig(format=LOGS_FORMAT, level = logging.INFO)

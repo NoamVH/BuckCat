@@ -83,6 +83,32 @@ resource "google_artifact_registry_repository_iam_member" "github_workload_ident
   member     = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }
 
+resource "google_compute_instance_iam_member" "github_conatiner_updater" {
+  project       = var.project
+  zone          = var.zone
+  instance_name = google_compute_instance.buckcat_frontend_instance.name
+  role   = "roles/compute.instanceAdmin.v1"
+  member = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
+
+resource "google_project_iam_member" "github_compute_viewer" {
+  project = var.project
+  role    = "roles/compute.viewer"
+  member  = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
+
+resource "google_service_account_iam_member" "github_service_account_user" {
+  service_account_id = google_service_account.servers_service_account.id
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
+
+resource "google_iap_tunnel_iam_member" "github_iap_tunnel_resource_accessor" {
+  project = var.project
+  role    = "roles/iap.tunnelResourceAccessor"
+  member  = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+}
+
 # Compute Instances Permissions
 resource "google_service_account" "servers_service_account" {
   account_id   = "instances-service-account"
