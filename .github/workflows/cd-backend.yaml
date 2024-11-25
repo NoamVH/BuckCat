@@ -1,4 +1,4 @@
-name: Deploy Latest Frontend Image Into GCI
+name: Deploy Latest Backend Image Into GCI
 
 permissions:
   id-token: write
@@ -16,7 +16,7 @@ env:
   PROJECT_ID: ${{secrets.PROJECT_ID}}
 
 jobs:
-  Deploy_Frontend_to_GCI:
+  Deploy_Backend_to_GCI:
     runs-on: ubuntu-latest
     steps:
       -
