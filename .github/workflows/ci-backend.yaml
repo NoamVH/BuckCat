@@ -8,9 +8,7 @@ on:
   push:
     branches:
       - main
-      - feature/cicd
     paths:
-      - .github/workflows/ci-backend.yaml
       - Backend/**
 
 env:
