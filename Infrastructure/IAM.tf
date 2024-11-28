@@ -79,7 +79,7 @@ resource "google_artifact_registry_repository_iam_member" "github_workload_ident
   project    = var.project
   location   = google_artifact_registry_repository.buckcat_registry.location
   repository = google_artifact_registry_repository.buckcat_registry.name
-  role       = "roles/artifactregistry.writer"
+  role       = "roles/artifactregistry.repoAdmin"
   member     = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }
 
@@ -87,16 +87,16 @@ resource "google_compute_instance_iam_member" "github_frontend_updater" {
   project       = var.project
   zone          = var.zone
   instance_name = google_compute_instance.buckcat_frontend_instance.name
-  role   = "roles/compute.instanceAdmin.v1"
-  member = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+  role          = "roles/compute.instanceAdmin.v1"
+  member        = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }
 
 resource "google_compute_instance_iam_member" "github_backend_updater" {
   project       = var.project
   zone          = var.zone
   instance_name = google_compute_instance.buckcat_backend_instance.name
-  role   = "roles/compute.instanceAdmin.v1"
-  member = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
+  role          = "roles/compute.instanceAdmin.v1"
+  member        = "serviceAccount:${google_service_account.github_workload_identity_service_account.email}"
 }
 
 resource "google_project_iam_member" "github_compute_viewer" {

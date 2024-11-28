@@ -32,6 +32,7 @@ jobs:
           workload_identity_provider: projects/765231548917/locations/global/workloadIdentityPools/buckcat-workload-identity-pool/providers/buckcat-github
           service_account: ${{secrets.SERVICE_ACCOUNT_MAIL}}
       - 
+        name: SSH and Update Container
         id: 'compute-ssh'
         uses: 'google-github-actions/ssh-compute@v1'
         env:

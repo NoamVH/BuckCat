@@ -95,10 +95,15 @@ def request_cat():
     return render_template("homepage.html", url=cat_url or "No cat URL found")
 
 # Explanation page.
-@app.route('/explanation')
+@app.route('/gcp-explanation')
 def explanation_page():
-    solution_image = app.config['SOLUTION_IMAGE']
+    solution_image = app.config['GCP_SOLUTION_IMAGE']
     return render_template('explanation-gcp.html', solution_image = solution_image)
+
+@app.route('/aws-explanation')
+def aws_explanation_page():
+    solution_image = app.config['AWS_SOLUTION_IMAGE']
+    return render_template('explanation-aws.html', solution_image = solution_image)
 
 def main():  
     logging.basicConfig(format=LOGS_FORMAT, level = logging.INFO)
@@ -106,11 +111,13 @@ def main():
     subscriber_client = initialize_subscriber_client()
     publisher_client = initialize_publisher_client()
     
-    solution_image = os.path.join('static', 'Images', 'solution.png') # Path to the site's Images folder
+    gcp_solution_image = os.path.join('static', 'Images', 'aws-solution.png')
+    aws_solution_image = os.path.join('static', 'Images', 'gcp-solution.png')
 
     app.config['SUBSCRIBER_CLIENT'] = subscriber_client
     app.config['PUBLISHER_CLIENT'] = publisher_client
-    app.config['SOLUTION_IMAGE'] = solution_image
+    app.config['GCP_SOLUTION_IMAGE'] = gcp_solution_image
+    app.config['AWS_SOLUTION_IMAGE'] = aws_solution_image
     
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.

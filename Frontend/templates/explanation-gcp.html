@@ -30,7 +30,7 @@
                 If you just want more cats you can go back <a href="/">here</a>!
             </p>
             <p>
-                In the past, I was challenged to create a certain environment in Amazon Web Service (AWS):
+                In 2023, I was challenged to create a certain environment in Amazon Web Service (AWS):
             </p>
             <p>
                 <ul>
@@ -44,30 +44,20 @@
                 without using the portal (or "Console" as Google call it for some reason), or the gcloud CLI even once.
             </p>
             <p>
-                The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure.<br>
+                The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure at the time.<br>
+                This time the idea was to get myself familiar with GCP, while making all of the required provisioning with Terraform, while keeping security best practices as much as possible.<br>
                 The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
-                It should be noted that the main goal of this little project is the environment and learning how to work with AWS, the application was a secondary goal, which is why this website or the code running it might seem a little bit sloppy.
+                It should be noted that the main goal of this little project is the environment and learning how to work with AWS/GCP, the application was a secondary goal, which is why this website's design might seem a little sloppy.
             </p>
             <div>
                 <h3>
-                    Update v2.0 - Added CI/CD Capabilities with GitHub Actions
+                    Update v4.0 - A Full Rewrite of the Project with IaC based on Terraform
                 </h3>
             </div>
             <div>
                 <p>
-                    After uploading the application to the cloud for the first time, making changes to the application became a tedious effort.<br>
-                    I used this as an opportunity to pass some more knowledge from Azure to AWS (in this case, applying what I learned on AZDO in AWS), as well as having updates a more comfortable process, for that CI/CD pipelines were added.
-                    The full description is in the final section of this explanation page.
-                </p>
-            </div>
-            <div>
-                <h3>
-                    Update v3.0 - Added SQS Queue
-                </h3>
-            </div>
-            <div>
-                <p>
-                    This update replaced the use of a socket connection between the FrontEnd and the BackEnd servers with an SQS queue.
+                    As explained above, all of the infrastructure was provisioned by using Terraform, there was no use of GCP' portal (Or console as they call it for some reason).<br>
+                    The code was rewrote from scratch for two reason - because of the usage of GCP's Python client libraries and because I can make the code cleaner, since my code abilities improved since last time.
                 </p>
             </div>
         </div>
@@ -82,8 +72,9 @@
             </div>
             <div id="Overview">
                 <p>
-                    I realized the environment can work as an application with a Front-End Server (the VM accessible from the internet) and a Back-End Server (the VM inaccessible from the internet).<br>
-                    Only the Back-End server will be able to access the application's resources (the KMS and S3 bucket). <br>
+                    This application consists of a frontend service (a VM accessible from the internet, that runs a docker-container) and a backend service (the VM inaccessible from the internet, that also runs a docker-container).<br>
+                    Only the backend server is able to access the application's resources (the BuckCat).<br>
+                    The backend and frontend services communicate with each other by using GCP's Pub/Sub service, which allows the backend service to be completely isolated regarding ingress traffic (with the exception of SSH from my home network).
                 </p>
                 <p>
                     The general idea of the solution works as such:
@@ -93,12 +84,11 @@
                 </p>
                 <p>
                     <ul>
-                        <li>User reaches the Front-End server from the internet.</li>
-                        <li>The Front-End server sends the user this web page.</li>
-                        <li>When the user clicks the "Generate Cat" button, the Front-End server sends a request to the Back-End server through SQS.</li>
-                        <li>The Back-End server accepts the Front-End's connection, asks the S3 Cats Bucket (or Buck-Cat, if you will) for a temporary signed URL, and sends it back to the Front-End through the SQS queue.</li>
-                        <li>The Front-End server presents the image to the user by using the temporary URL.</li>
-                        <li>The images in the Buck-Cat are encrypted with a KMS Key which is held in KMS.</li>
+                        <li>User reaches the frontend service from the internet.</li>
+                        <li>The frontend server sends the user this web page.</li>
+                        <li>When the user clicks the "Pull Cat" button, the frontend server sends a request to the backend server through a Pub/Sub topic for cat requests.</li>
+                        <li>The backend server listens for messages in the Pub/Sub topic, creates a signed temporary URL for the required cat, and sends it back to the frontend server through another Pub/Sub topic for cat URLs.</li>
+                        <li>The frontend server presents the image to the user by using the temporary URL.</li>
                     </ul>
                 </p>
             </div>
@@ -114,52 +104,27 @@
                 <p>
                     <table>
                         <tr>
-                            <th>Front-End Server</th>
-                            <th>Back-End Server</th>
-                            <th>KMS</th>
-                            <th>Buck-Cat (S3)</th>
+                            <th>Frontend service</th>
+                            <th>Backend service</th>
                         </tr>
                         <tr>
                             <td>
                                 <ul>
-                                    <li>Runs Linux Ubuntu Server.</li>
+                                    <li>Runs on an e2-micro VM that is based on COS Cloud, a Linux distribution optimized for running containers.</li>
                                     <li>Runs a container with an application written in Python, HTML and CSS:
-                                        <ul>
-                                            <li>Uses Flask Library for running the web application.</li>
-                                            <li>Sends a request to BackEnd through SQS.</li>
-                                        </ul>
-                                    </li>
-                                    <li>Iterates through how many cats were watched and goes back to the start.</li>
-                                    <li>Sends to the Back-End Server which iteration of a cat to get to the URL for.</li>
-                                    <li>Is within a Front-End VPC (Virtual Private Cloud) that only allows HTTP/HTTPS inbound traffic front the internet.</li>
+                                    <li>Uses Flask and GCP's client Libraries.</li>
+                                    <li>When the "Pull Cat" button is clicked, sends a cat request to the backend service through GCP Pub/Sub through a 'cats requests' topic.</li>
+                                    <li>Pulls a cat URL from the "cats URLs" Pub/Sub topic, and uses it to present the cat to the user.</li>
+                                    <li>Is within a Frontend VPC (Virtual Private Cloud) with a FW that allows HTTP requests from the internet, IAP (Identity-Aware Proxy) access, and SSH from my own home network.</li>
                                 </ul>
                             </td>
                             <td>
                                 <ul>
-                                    <li>Runs Linux Ubuntu Server.</li>
-                                    <li>Is assigned an IAM (AWS's Identity & Management) role that gives it access priviledges to a KMS key (that encrypts the images) and the Buck-Cat itself.</li>
+                                    <li>Runs on an e2-micro VM that is based on COS Cloud, a Linux distribution optimized for running containers.</li>
+                                    <li>Is assigned an IAM (GCP's Identity & Access Management) role that allows it to read information from the BuckCat and sign tokens.</li>
                                     <li>Runs a container with an application written in Python:</li>
-                                    <ul>
-                                        <li>Uses the Boto3 Library (AWS SDK for Python).</li>
-                                        <li>Sends URLs to FrontEnd with SQS.</li>
-                                    </ul>
-                                    <li>Iterates over the items in the Buck-Cat and lists their names.</li>
-                                    <li>Gets a request to get a certain iteration of a cat front the Front-End.</li>
-                                    <li>Asks the Buck-Cats for a signed URL that may be used for a limited amount of time.</li>
-                                    <li>AWS automatically decrpyts the cat picture when getting a request from the signed URL.</li>
-                                </ul>
-                            </td>
-                            <td>
-                                <ul>
-                                    <li>Holds the KMS key that is used to encrypt the cat pictures.</li>
-                                    <li>The KMS key is allowed for the IAM user used by the Back-End Server.</li>
-                                </ul>
-                            </td>
-                            <td>
-                                <ul>
-                                    <li>Hold the cats image files.</li>
-                                    <li>Has a policy that requires all files to be encrypted with the KMS key when uploaded.</li>
-                                    <li>Allow access to the IAM user to upload and download files (But not manage the Buck-Cat)<./li>
+                                    <li>Uses GCP's Python Client Library, which runs on a conatiner.</li>
+                                    <li>Sends signed blob URLs to frontend with GCP Pub/Sub 'cats URLs' topic.</li>
                                 </ul>
                             </td>
                         </tr>
@@ -169,127 +134,89 @@
             <div>
                 <div>
                     <h3>
-                        "Containing" the Bugs
+                        Automation - CI/CD Pipelines with GitHub Actions and Google Artifactory Registry
                     </h3>
                 </div>
                 <div>
                     <p>
-                        During deployment, as the app was moved from the local development environment (a local Ubuntu VM) into a container in the respective EC2 Instance,
-                        there was a series of interesting bugs that had to be taken care of due to the change:
+                        Deploying changes in the application manually is tedious, so a CI/CD process makes things quick and easy.
                     </p>
                     <p>
-                        <table>
-                            <tr>
-                                <th>Bug</th>
-                                <th>Cause</th>
-                                <th>Solution</th>
-                            </tr>
-                            <tr>
-                                <td>The signing version and region were not accepted by AWS when generating a URL.</td>
-                                <td>
-                                    The development environment used a programmatic IAM user in order to get to the Buck-Cat and KMS Key,
-                                    the credentials are held within the AWS SDK config file (so they won't be kept in the code).<br>
-                                    When the program was moved into a container, it got the credentials through the IAM Role, which was applied on the EC2 instance in which it resides,
-                                    however, it seems that there's some kind of difference in the way the SDK reaches the credentials in this case.
-                                </td>
-                                <td>AWS's recommended signing version (s3v4) and the correct region were assigned in the boto3 client initalization in the code.</td>
-                            </tr>
-                            <tr>
-                                <td>The URL was always expired.</td>
-                                <td>Docker conainers default to the UTC timezone, even if the host machine is set to the correct time, this caused the links to be expired when shown in the web page.</td>
-                                <td>Changes in the dockerfiles were made in order to build the Docker image with the correct timezone settings.</td>
-                            </tr>
-                            <tr>
-                                <td>The URL was not complete, resulting in denied access.</td>
-                                <td>The URLs became extremely long due to the signing method and the change of the role, the URLs didn't pass completely in the TCP sessions between BackEnd and FrontEnd</td>
-                                <td>Added a while loop in FrontEnd to listen to the message in the session from BackEnd until it's empty.</td>
-                            </tr>
-                        </table>
-                    </p>
-                </div>
-                <div>
-                    <h3>
-                        Automation - CI/CD Pipelines with GitHub Actions, ECR, and Bash Scripts
-                    </h3>
-                </div>
-                <div>
-                    <p>
-                        As described in the introduction, deploying changes in the application became a tedious task.<br>
-                        Making changes required me to copy the application's files into the EC2 Instances by using SCP, and then connect using SSH, build the Docker images by using the dockerfiles, and run the containers.<br>
-                        This wasn't very good and not fun at all. 
+                        The existing pipelines were split into frontend and backend pipelines (before that they were the same pipelines), and rewritten to integrate with GCP.<br>
+                        The CD process is a bit more convoluted then normal regarding deployment, since the project utilizes conatiners that run inside of VMS.<br>
+                        It would've been a simpler process if the project was based on Kubernetes or GCP Run (which would simply require restarting the service).<br>
+                        This decision was made out of pricing considerations, more on that later.
                     </p>
                     <p>
-                        I took this as an opportunity to pass knowledge I had about CI/CD on Azure/AZDO and apply it with AWS (by using GitHub Actions).<br>
-                        This CI/CD process is not quite a standard one, because it manages Docker in the EC2 instances with bash scripts saved in the EC2 instances, instead of deployment to Kubernetes or ECS.<br>
-                        This decision was made out of pricing considerations, using Kubernetes or ECS (and by extention, Fargate), requires full payment for usage, while EC2 allows 750 active monthly hours for free per month.
-                    </p>
-                    <p>
-                        The next update to this application will use Minikube instead of Docker for deployment. For now, let's review the existing CI/CD process.<br>
-                        The CI/CD process was created with two YAML files that run in GitHub Actions, and two bash files that are saved in the EC2 instances (one for FrontEnd and one for BackEnd):<br>
+                        The CI/CD process was created with four YAML files that run in GitHub Actions:<br>
                         <ul>
-                            <li>The CI Pipeline runs when a new commit is pushed to the main branch in GitHub, it builds two Docker images and pushes them to ECR, and then deletes untagged images.</li>
-                            <li>The CD Pipelines runs when the CI Pipeline is completed, it connect with SSH to the FrontEnd server, and tells it to run a bash script.</li>
-                            <li>The FrontEnd server runs a bash script that pulls the new image from ECR, stops the currently running container, deletes the old container and image, and then runs a new container.</li>
-                            <li>The FrontEnd script connects to the BackEnd server with SSH and tells it to run a similar bash script.</li>
+                            <li>The CI pipelines run when a new commit is pushed to the main branch in GitHub, depending on the directories that the commit modified. They container images and push them to GAR, and then delete untagged images.</li>
+                            <li>The CD pipelines runs when the CI pipelines are completed, they connect with SSH to each service through IAP, and tells it to run a bash script.</li>
+                            <li>The CD pipelines stop the running container, prune all inactive containers, prune all inactive images, and runs the latest image (which triggers an automatic pull).</li>
                         </ul>
                     </p>
                     <p>
-                        <b>CI Pipeline Steps</b>
+                        <b>CI Pipelines Steps</b>
                         <ul>
-                            <li>Run when a new commit is added to the main branch, run on an Ubuntu server.</li>
-                            <li>Configure AWS Credentials (assume a pre-configured role).</li>
+                            <li>Run when a new commit is added to the main branch to the respective frontend or backend directory, run on an Ubuntu server.</li>
                             <li>Checkout the latest commit on the main branch.</li>
-                            <li>Build, tag, and push the FrontEnd Docker Image to AWS ECR.</li>
-                            <li>Build, tag, and push the BackEnd Docker Image to AWS ECR, and then delete old untagged images.</li>
+                            <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
+                            <li>Login to GAR by using the workload identity service account.</li>
+                            <li>Build, tag, and push the respective container image to GAR with Docker Compose, and then delete old untagged images.</li>
                         </ul>
                     </p>
                     <p>
-                        <b>CD Pipeline Steps</b>
+                        <b>CD Pipelines Steps</b>
                         <ul>
-                            <li>Run when the CI Pipeline is done successfully, run on an Ubuntu server.</li>
-                            <li>Configure AWS Credentials (assume a pre-configured role).</li>
-                            <li>Get the IP address of the Ubuntu server the job is running on.</li>
-                            <li>Whitelist the pipeline server's IP address on the FrontEnd Instance's security group to allow SSH sessions.</li>
-                            <li>Whitelist the pipeline server's IP address on the FrontEnd Network's ACL to allow SSH sessions.</li>
-                            <li>
-                                Connect to the FrontEnd instance with SSH and tell it to run the bash script saved in it:
-                                <ul>
-                                    <li>Get ECR's credentials (ECR is set to allow access for the instance's role) and login to ECR with Docker.</li>
-                                    <li>Pull the newest image.</li>
-                                    <li>Stop the currently running continer.</li>
-                                    <li>Delete all unused containers.</li>
-                                    <li>Delete all untagged images.</li>
-                                    <li>Run a new container for the new Docker image.</li>
-                                    <li>Connect to BackEnd with a SSH session and tell it to run the bash script saved in it (same script, just for BackEnd).</li>
-                                </ul>
-                            </li>
-                            <li>Revoke the pipeline server's IP address from the security group.</li>
-                            <li>Revoke the pipeline server's IP address from the network's ACL.</li>
+                            <li>Run when the respective CI Pipeline is done successfully, run on an Ubuntu server.</li>
+                            <li>Checkout the latest commit on the main branch.</li>
+                            <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
+                            <li>SSH to the respective machine through IAP, stop the running container, prune all containers and images.</li>
+                            <li>Pull and run the latest container image.</li>
                         </ul>
                     </p>
                     <p>
-                        The CI/CD YAML files can be found <a href="https://github.com/NoamVH/Buck-Cat/tree/main/.github/workflows">here</a>.
+                        The CI/CD YAML files can be found <a href="https://github.com/NoamVH/BuckCat/tree/main/.github/workflows">here</a>.
                     </p>
                 </div>
                 <div>
                     <h3>
-                        A Note About Connectivity to ECR
+                        Identity and Access Magement
                     </h3>
                 </div>
                 <div>
                     <p>
-                        Unfortunately, in order to allow the FrontEnd and BackEnd servers to pull images from ECR, the networks' ACLs had to allow all IPv4/TCP connections into both of their networks.<br>
-                        The reason for that, is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR in the inbound direction.<br>
-                        The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, I went for the cheaper alternative.
+                        One of the goals of the project was to comply with security best-practices as much as possible. Unfortunately, there are many 'guides' on the internet (I'm looking at YOU Medium, literally the hub of mediocracy),<br>
+                        that spread some simple 'solutions', that while they are using the least secure methods possible, that may be good for beginners who want to experiment, but many of these 'solutoins' also get to production environments.
                     </p>
                     <p>
-                        However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instances' security groups, so while the networks themselves are open to the internet (at least for IPv4/TCP reachability),
-                        the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.<br>
-                        Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).<br>
-                        There are two endpoints for the FrontEnd server (one for ECR API and one for ECR DKR), and three endpoints for the BackEnd server (ECR API, ECR DKR, and S3 reachability), which results in a total of $0.06/HR.
+                        Google's documentation states* the best practices of different processes and components, as well as the predefined roles that exist for each resource and their perimssions.<br>
+                        The IAM roles divide to three categories:
+                        <ul>
+                            <li><b>Development Permissions</b> - a service account used for local testing.</li>
+                            <ul>
+                                <li><code>storage.objectViewer</code> - allows viewing and downloading a bucket's contents.</li>
+                                <li><code>pubsub.subscriber</code> and <code>pubsub.publisher</code> allows reading and writing messages to GCP Pub/Sub topics.</li>
+                            </ul>
+                            <li><b>Workload Identity Federation</b> - allows GitHub actions (or other on-premises/multi-cloud resources) to authenticate with GCP, the main advantage of this practice is that no credentials need to be taken out of GCP (<a href="https://cloud.google.com/iam/docs/workload-identity-federation">Reference</a>).</li>
+                            <ul>
+                                <li>The workload identity is recognized by two attributes, which are defined by two assertions - <code>assertion.repository_owner_id</code> and <code>assertion.repository_id</code> this limits authentication to the BuckCat's code repository only.</li>
+                                <li>The workload identity has a dedicated service account that is attached to it, which is done with the <code>google_service_account_iam_member</code> Terraform resource, the role that is defined for that resource is <code>iam.workloadIdentityUser</code>.</li>
+                                <li><code>artifatregistry.repoAdmin</code> is given to the workload identity's service account for reading, writing, and deleting container images from GAR</li>
+                                <li><code>compute.instanceAdmin.v1</code> is given twice, one for each compute engine, in order to allow SSH connection to the compute instance (this one was weird for me, administrator seems excessive, but this is what the instructions in <a href="https://cloud.google.com/compute/docs/access/iam#connectinginstanceadmin">Google's documentation</a> say, and it wouldn't work otherwise).</li>
+                                <li><code>compute.viewer</code> is given on the project level, this is also required for GitHub to be able to attempt a connection with SSH by using gcloud, otherwise it woulnd't be able to find the machine and the SSH attempt would fail.</li>
+                                <li><code>iam.serviceAccountUser</code> is given to the GitHub workload identity service account, which connects it to the machines' service account (more on that later), this is another (somewhat strange) requirement by Google, which allows GitHub to act on behalf of the machine's service account.</li>
+                                <li><code>iap.tunnelResourceAccessor</code> is given in order to allow creating an SSH tunnel towards the machines, which as mentioned before, have FW ingress rules that allow IAP to connect to them.</li>
+                            </ul>
+                            <li><b>Compute Instance Permissions</b> - allows a service account that is attached to the servers to interact with resources. This service account has the same permissions of the local development service account, with a few additons:</li>
+                            <ul>
+                                <li><code>artifactregistry.reader</code> allows the servers to pull container images from GAR.</li>
+                                <li><code>iam.serviceAccountTokenCreator</code> allows the backend server to sign tokens for the temporary URLs.</li>
+                            </ul>
+                        </ul>
+                        And with that, all resources have the minimal permissions that allow them to do exactly what they need, and there's compliance with GCP's best practices, hurray!
                     </p>
                 </div>
-            </div>
         </div>
         <div id="Summary">
             <div>
@@ -300,27 +227,38 @@
             <div>
                 <p>
                     <ul>
-                        <li>This project runs an application deployed on AWS, the goal of the project was to get familiar with the AWS environment.</li>
-                        <li>As an extra challenge, this application was developed to run on it.</li>
-                        <li>The project now has CI/CD capabilities, which makes development much more comfortable.</li>
-                        <li>The entire project, from initial planning to the first deployment, was done within a week (Friday, 24/2/23 - Friday, 3/3/23).</li>
-                        <li>The addition of the CI/CD process, was done within five days (Tuesday, 21/3/23 - Saturday, 25/3/23).</li>
-                        <li>The addition of the SQS queue took less than a day.</li>
-                        <li>
-                            This is the second version of this project, considering other priorities, time, and AWS resources pricing, this project might expand as more of my knowledge is passed from Azure to AWS.
-                        </li>
-                        <li>The next goal for the project, if I decide to keep working on it (it's getting pricey), will be using Minikube instead of just Docker for running the containers.</li>
-                        <li>The project's source code can be found in <a href="https://github.com/NoamVH/Buck-Cat">GitHub</a>.</li>
-                        <li>
-                            A playlist of videos that helped me in the process (next to a lot of googling and reading) can be found <a href="https://youtube.com/playlist?list=PLNYMx-mWLAg0xSAgeA94Apw0xUxZ191XF">Here</a>.
-                        </li>
+                        <li>This original project consisted of an application that was deployed on AWS, the goal of the project was to get familiar with the AWS environment.</li>
+                        <li>For the old explanation about the original project, see <a href="/aws-explanation">here</a>, the original code can also be found in a directory in the repository <a href="https://github.com/NoamVH/BuckCat/tree/main/AWS">here</a>.</li>
+                        <li>The also include a CI/CD process which makes development comfortable.</li>
+                        <li>The current project, was done within about three work days during November 2024, with semi-focus, whenever free time was available, on the original project in 2023 I was unemployed.</li>
+                        <li>Most of that time was spent on configuring roles on IAM and figuring out Google's practices, rather than development.</li>
+                        <li>This is the fourth version of the project, which deploys it on GCP by using Terraform, while complying with best-practices.</li>
+                        <li>The project's source code can be found on <a href="https://github.com/NoamVH/BuckCat">GitHub</a>.</li>
                         <li>If you have any questions or comments, or are hiring, you can reach me via my <a href="https://www.linkedin.com/in/noamvh/">LinkedIn Profile.</a></li>
                         <li>If you want to click on the button more and see more cats, you can go back <a href="/">here</a>!</li>
                     </ul>
-                    
                 </p>
             </div>
         </div>
+        <div>
+            <h3>
+                A Note About Connectivity to ECR
+            </h3>
+        </div>
+        <div>
+            <p>
+                Unfortunately, in order to allow the FrontEnd and BackEnd servers to pull images from ECR, the networks' ACLs had to allow all IPv4/TCP connections into both of their networks.<br>
+                The reason for that, is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR in the inbound direction.<br>
+                The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, I went for the cheaper alternative.
+            </p>
+            <p>
+                However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instances' security groups, so while the networks themselves are open to the internet (at least for IPv4/TCP reachability),
+                the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.<br>
+                Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).<br>
+                There are two endpoints for the FrontEnd server (one for ECR API and one for ECR DKR), and three endpoints for the BackEnd server (ECR API, ECR DKR, and S3 reachability), which results in a total of $0.06/HR.
+            </p>
+        </div>
+    </div>
         <div id="Acknowledgement">
             <div>
                 <h2>
@@ -333,9 +271,8 @@
                 </p>
                 <p>
                     <ul>
-                        <li>My friend Roi - for challenging me, which inspired this project (<a href="https://www.linkedin.com/in/roi-shraga/">LinkedIn</a>).</li>
-                        <li>My friend Tal - for technical advice and existing in general (<a href="https://www.linkedin.com/in/reverser/">LinkedIn</a>).</li>
-                        <li>ChatGPT - for helping me with problems that I had a hard time finding the solutions for with the traditional internet (<a href="https://openai.com/blog/chatgpt">Website</a>).</li>
+                        <li>Roi - for inspiring this project (<a href="https://www.linkedin.com/in/roi-shraga/">LinkedIn</a>).</li>
+                        <li>Tal - for technical advice and existing in general (<a href="https://www.linkedin.com/in/reverser/">LinkedIn</a>).</li>
                     </ul>
                 </p>
             </div>

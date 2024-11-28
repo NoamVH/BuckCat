@@ -8,11 +8,8 @@ on:
   push:
     branches:
       - main
-      - feature/cicd
     paths:
-      - .github/workflows/ci-frontend.yaml
       - Frontend/**
-
 
 env:
   GCP_REGION: us-east1
@@ -50,3 +47,9 @@ jobs:
         run: |
           docker compose -f $COMPOSE_FILE build
           docker compose push
+      -
+        name: Clean Older Images
+        uses: 'docker://us-docker.pkg.dev/gcr-cleaner/gcr-cleaner/gcr-cleaner-cli'
+        with:
+          args: >-
+            -repo=${{env.GCP_REGION}}-docker.pkg.dev/buckcat-registry/buckcat-frontend
