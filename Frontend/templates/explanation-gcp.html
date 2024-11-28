@@ -97,7 +97,7 @@
                     A Deeper Dive
                 </h3>
             </div>
-            <div>
+            <div id="A Deeper Dive">
                 <p>
                     Now it's possible to look into each component indvidually, let's use this table:
                 </p>
@@ -137,7 +137,7 @@
                         Automation - CI/CD Pipelines with GitHub Actions and Google Artifactory Registry
                     </h3>
                 </div>
-                <div>
+                <div id="Automation">
                     <p>
                         Deploying changes in the application manually is tedious, so a CI/CD process makes things quick and easy.
                     </p>
@@ -150,7 +150,7 @@
                     <p>
                         The CI/CD process was created with four YAML files that run in GitHub Actions:<br>
                         <ul>
-                            <li>The CI pipelines run when a new commit is pushed to the main branch in GitHub, depending on the directories that the commit modified. They container images and push them to GAR, and then delete untagged images.</li>
+                            <li>The CI pipelines run when a new commit is pushed to the main branch in GitHub, depending on the directories that the commit modified. They container images and push them to GAR.</li>
                             <li>The CD pipelines runs when the CI pipelines are completed, they connect with SSH to each service through IAP, and tells it to run a bash script.</li>
                             <li>The CD pipelines stop the running container, prune all inactive containers, prune all inactive images, and runs the latest image (which triggers an automatic pull).</li>
                         </ul>
@@ -162,7 +162,8 @@
                             <li>Checkout the latest commit on the main branch.</li>
                             <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
                             <li>Login to GAR by using the workload identity service account.</li>
-                            <li>Build, tag, and push the respective container image to GAR with Docker Compose, and then delete old untagged images.</li>
+                            <li>Build, tag, and push the respective container image to GAR with Docker Compose.</li>
+                            <li>Unrelated note - old untagged images are deleted automatically by GAR by using a cleanup policy, that is defined with Terraform as part of the resource.</li>
                         </ul>
                     </p>
                     <p>
@@ -181,10 +182,10 @@
                 </div>
                 <div>
                     <h3>
-                        Identity and Access Magement
+                        Identity and Access Management
                     </h3>
                 </div>
-                <div>
+                <div id="Identity and Access Magement">
                     <p>
                         One of the goals of the project was to comply with security best-practices as much as possible. Unfortunately, there are many 'guides' on the internet (I'm looking at YOU Medium, literally the hub of mediocracy),<br>
                         that spread some simple 'solutions', that while they are using the least secure methods possible, that may be good for beginners who want to experiment, but many of these 'solutoins' also get to production environments.
@@ -224,7 +225,7 @@
                     Summary
                 </h2>
             </div>
-            <div>
+            <div id="Summary">
                 <p>
                     <ul>
                         <li>This original project consisted of an application that was deployed on AWS, the goal of the project was to get familiar with the AWS environment.</li>
@@ -242,20 +243,12 @@
         </div>
         <div>
             <h3>
-                A Note About Connectivity to ECR
+                Final Thoughts
             </h3>
         </div>
         <div>
             <p>
-                Unfortunately, in order to allow the FrontEnd and BackEnd servers to pull images from ECR, the networks' ACLs had to allow all IPv4/TCP connections into both of their networks.<br>
-                The reason for that, is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR in the inbound direction.<br>
-                The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, I went for the cheaper alternative.
-            </p>
-            <p>
-                However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instances' security groups, so while the networks themselves are open to the internet (at least for IPv4/TCP reachability),
-                the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.<br>
-                Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).<br>
-                There are two endpoints for the FrontEnd server (one for ECR API and one for ECR DKR), and three endpoints for the BackEnd server (ECR API, ECR DKR, and S3 reachability), which results in a total of $0.06/HR.
+                TBD.
             </p>
         </div>
     </div>
@@ -265,7 +258,7 @@
                     Acknowledgement
                 </h2>
             </div>
-            <div>
+            <div id="Acknowledgement">
                 <p>
                     I would like to thank:
                 </p>
