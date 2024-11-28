@@ -26,6 +26,14 @@ resource "google_artifact_registry_repository" "buckcat_registry" {
   repository_id = "buckcat-registry"
   description   = "BuckCat's Docker Repository"
   format        = "DOCKER"
+
+  cleanup_policies {
+    id     = "delete-untagged"
+    action = "DELETE"
+    condition {
+      tag_state = "UNTAGGED"
+    }
+  }
 }
 
 resource "google_compute_instance" "buckcat_frontend_instance" {
