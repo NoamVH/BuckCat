@@ -48,9 +48,3 @@ jobs:
         run: |
           docker compose -f $COMPOSE_FILE build
           docker compose push
-      -
-        name: Clean Older Images
-        uses: 'docker://us-docker.pkg.dev/gcr-cleaner/gcr-cleaner/gcr-cleaner-cli'
-        with:
-          args: >-
-            -repo=${{env.GCP_REGION}}-docker.pkg.dev/buckcat-registry/buckcat-backend
