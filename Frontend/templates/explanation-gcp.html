@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='overlay.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
@@ -13,261 +15,277 @@
     <title>Buck-Cat - Explanation</title>
 </head>
 <body>
-    <div>
-        <h1>
-            What's happening here?
-        </h1>
+    <div id="overlay"></div>
+    <div id="overlayContent">
+        <img id="imgBig" src="" alt="">
+        <div style="font-size: 22px; background-color: rgb(26, 25, 25);">
+            Click the image again in order to close the overlay.
+        </div>
     </div>
-    <div>
+    <div id="Main">
         <div>
-            <h2>
-                Introduction
-            </h2>
-        </div>
-        <div id="Introduction">
-            <p>
-                This page will explain what is the BuckCat and how it works. <br>
-                If you just want more cats you can go back <a href="/">here</a>!
-            </p>
-            <p>
-                In 2023, I was challenged to create a certain environment in Amazon Web Service (AWS):
-            </p>
-            <p>
-                <ul>
-                    <li>Create two Virtual Machines (VMs, or Instances as they are called in AWS).</li>
-                    <li>Add a secrets manager (Key Management Server - KMS) and storage (S3).</li>
-                    <li>Make one instance accessible through the internet and the second inaccessible.</li>
-                </ul>
-            </p>
-            <p>
-                Recently, I decided to bring the project back to life on Google Cloud Platform (GCP), with the same goals, only 100% based IaC with Terraform,<br>
-                without using the portal (or "Console" as Google call it for some reason), or the gcloud CLI even once.
-            </p>
-            <p>
-                The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure at the time.<br>
-                This time the idea was to get myself familiar with GCP, while making all of the required provisioning with Terraform, while keeping security best practices as much as possible.<br>
-                The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
-                It should be noted that the main goal of this little project is the environment and learning how to work with AWS/GCP, the application was a secondary goal, which is why this website's design might seem a little sloppy.
-            </p>
-            <div>
-                <h3>
-                    Update v4.0 - A Full Rewrite of the Project with IaC based on Terraform
-                </h3>
-            </div>
-            <div>
-                <p>
-                    As explained above, all of the infrastructure was provisioned by using Terraform, there was no use of GCP' portal (Or console as they call it for some reason).<br>
-                    The code was rewrote from scratch for two reason - because of the usage of GCP's Python client libraries and because I can make the code cleaner, since my code abilities improved since last time.
-                </p>
-            </div>
+            <h1>
+                What's Happening Here?
+            </h1>
         </div>
         <div>
-            <div>
-                <h2>How Does This Work</h2>
-            </div>
-            <div>
-                <h3>
-                    Overview
-                </h3>
-            </div>
-            <div id="Overview">
-                <p>
-                    This application consists of a frontend service (a VM accessible from the internet, that runs a docker-container) and a backend service (the VM inaccessible from the internet, that also runs a docker-container).<br>
-                    Only the backend server is able to access the application's resources (the BuckCat).<br>
-                    The backend and frontend services communicate with each other by using GCP's Pub/Sub service, which allows the backend service to be completely isolated regarding ingress traffic (with the exception of SSH from my home network).
-                </p>
-                <p>
-                    The general idea of the solution works as such:
-                </p>
-                <p>
-                    <img src="{{ solution_image }}">
-                </p>
-                <p>
-                    <ul>
-                        <li>User reaches the frontend service from the internet.</li>
-                        <li>The frontend server sends the user this web page.</li>
-                        <li>When the user clicks the "Pull Cat" button, the frontend server sends a request to the backend server through a Pub/Sub topic for cat requests.</li>
-                        <li>The backend server listens for messages in the Pub/Sub topic, creates a signed temporary URL for the required cat, and sends it back to the frontend server through another Pub/Sub topic for cat URLs.</li>
-                        <li>The frontend server presents the image to the user by using the temporary URL.</li>
-                    </ul>
-                </p>
-            </div>
-            <div>
-                <h3>
-                    A Deeper Dive
-                </h3>
-            </div>
-            <div id="ADeeperDive">
-                <p>
-                    Now it's possible to look into each component indvidually, let's use this table:
-                </p>
-                <p>
-                    <table>
-                        <tr>
-                            <th>Frontend service</th>
-                            <th>Backend service</th>
-                        </tr>
-                        <tr>
-                            <td>
-                                <ul>
-                                    <li>Runs on an e2-micro VM that is based on COS Cloud, a Linux distribution optimized for running containers.</li>
-                                    <li>Runs a container with an application written in Python, HTML and CSS:
-                                    <li>Uses Flask and GCP's client Libraries.</li>
-                                    <li>When the "Pull Cat" button is clicked, sends a cat request to the backend service through GCP Pub/Sub through a 'cats requests' topic.</li>
-                                    <li>Pulls a cat URL from the "cats URLs" Pub/Sub topic, and uses it to present the cat to the user.</li>
-                                    <li>Is within a Frontend VPC (Virtual Private Cloud) with a FW that allows HTTP requests from the internet, IAP (Identity-Aware Proxy) access, and SSH from my own home network.</li>
-                                </ul>
-                            </td>
-                            <td>
-                                <ul>
-                                    <li>Runs on an e2-micro VM that is based on COS Cloud, a Linux distribution optimized for running containers.</li>
-                                    <li>Is assigned an IAM (GCP's Identity & Access Management) role that allows it to read information from the BuckCat and sign tokens.</li>
-                                    <li>Runs a container with an application written in Python:</li>
-                                    <li>Uses GCP's Python Client Library, which runs on a conatiner.</li>
-                                    <li>Sends signed blob URLs to frontend with GCP Pub/Sub 'cats URLs' topic.</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </table>
-                </p>
-            </div>
             <div>
                 <div>
-                    <h3>
-                        Automation - CI/CD Pipelines with GitHub Actions and Google Artifactory Registry
-                    </h3>
+                    <h2>
+                        Introduction
+                    </h2>
                 </div>
-                <div id="Automation">
+                <div>
                     <p>
-                        Deploying changes in the application manually is tedious, so a CI/CD process makes things quick and easy.
+                        This page will explain what is the BuckCat and how it works. <br>
+                        If you just want more cats you can go back <a href="/">here</a>!
                     </p>
                     <p>
-                        The existing pipelines were split into frontend and backend pipelines (before that they were the same pipelines), and rewritten to integrate with GCP.<br>
-                        The CD process is a bit more convoluted then normal regarding deployment, since the project utilizes conatiners that run inside of VMS.<br>
-                        It would've been a simpler process if the project was based on Kubernetes or GCP Run (which would simply require restarting the service).<br>
-                        This decision was made out of pricing considerations, more on that later.
+                        In 2023, I was challenged to create a certain environment in Amazon Web Service (AWS):
                     </p>
                     <p>
-                        The CI/CD process was created with four YAML files that run in GitHub Actions:<br>
                         <ul>
-                            <li>The CI pipelines run when a new commit is pushed to the main branch in GitHub, depending on the directories that the commit modified. They container images and push them to GAR.</li>
-                            <li>The CD pipelines runs when the CI pipelines are completed, they connect with SSH to each service through IAP, and tells it to run a bash script.</li>
-                            <li>The CD pipelines stop the running container, prune all inactive containers, prune all inactive images, and runs the latest image (which triggers an automatic pull).</li>
+                            <li>Create two Virtual Machines (VMs, or Instances as they are called in AWS).</li>
+                            <li>Add a secrets manager (Key Management Server - KMS) and storage (S3).</li>
+                            <li>Make one instance accessible through the internet and the second inaccessible.</li>
                         </ul>
                     </p>
                     <p>
-                        <b>CI Pipelines Steps</b>
-                        <ul>
-                            <li>Run when a new commit is added to the main branch to the respective frontend or backend directory, run on an Ubuntu server.</li>
-                            <li>Checkout the latest commit on the main branch.</li>
-                            <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
-                            <li>Login to GAR by using the workload identity service account.</li>
-                            <li>Build, tag, and push the respective container image to GAR with Docker Compose.</li>
-                            <li>Unrelated note - old untagged images are deleted automatically by GAR by using a cleanup policy, that is defined with Terraform as part of the resource.</li>
-                        </ul>
+                        Recently, I decided to bring the project back to life on Google Cloud Platform (GCP), with the same goals, only 100% based IaC with Terraform, without using the portal (or "Console" as Google call it for some reason), or the gcloud CLI even once.
                     </p>
                     <p>
-                        <b>CD Pipelines Steps</b>
-                        <ul>
-                            <li>Run when the respective CI Pipeline is done successfully, run on an Ubuntu server.</li>
-                            <li>Checkout the latest commit on the main branch.</li>
-                            <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
-                            <li>SSH to the respective machine through IAP, stop the running container, prune all containers and images.</li>
-                            <li>Pull and run the latest container image.</li>
-                        </ul>
+                        The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure at the time.<br>
+                        This time the idea was to get myself familiar with GCP, while making all of the required provisioning with Terraform, while keeping security best practices as much as possible.<br>
+                    </p>
+                    <p> 
+                        The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
                     </p>
                     <p>
-                        The CI/CD YAML files can be found <a href="https://github.com/NoamVH/BuckCat/tree/main/.github/workflows">here</a>.
+                        It should be noted that the main goal of this little project is the environment and learning how to work with AWS/GCP, the application was a secondary goal.
                     </p>
                 </div>
                 <div>
                     <h3>
-                        Identity and Access Management
+                        Update v4.0 - A Full Rewrite of the Project with IaC based on Terraform
                     </h3>
                 </div>
-                <div id="IAM">
+                <div>
                     <p>
-                        One of the goals of the project was to comply with security best-practices as much as possible. Unfortunately, there are many 'guides' on the internet (I'm looking at YOU Medium, literally the hub of mediocracy),<br>
-                        that spread some simple 'solutions', that while they are using the least secure methods possible, that may be good for beginners who want to experiment, but many of these 'solutoins' also get to production environments.
-                    </p>
-                    <p>
-                        Google's documentation states* the best practices of different processes and components, as well as the predefined roles that exist for each resource and their perimssions.<br>
-                        The IAM roles divide to three categories:
-                        <ul>
-                            <li><b>Development Permissions</b> - a service account used for local testing.</li>
-                            <ul>
-                                <li><code>storage.objectViewer</code> - allows viewing and downloading a bucket's contents.</li>
-                                <li><code>pubsub.subscriber</code> and <code>pubsub.publisher</code> allows reading and writing messages to GCP Pub/Sub topics.</li>
-                            </ul>
-                            <li><b>Workload Identity Federation</b> - allows GitHub actions (or other on-premises/multi-cloud resources) to authenticate with GCP, the main advantage of this practice is that no credentials need to be taken out of GCP (<a href="https://cloud.google.com/iam/docs/workload-identity-federation">Reference</a>).</li>
-                            <ul>
-                                <li>The workload identity is recognized by two attributes, which are defined by two assertions - <code>assertion.repository_owner_id</code> and <code>assertion.repository_id</code> this limits authentication to the BuckCat's code repository only.</li>
-                                <li>The workload identity has a dedicated service account that is attached to it, which is done with the <code>google_service_account_iam_member</code> Terraform resource, the role that is defined for that resource is <code>iam.workloadIdentityUser</code>.</li>
-                                <li><code>artifatregistry.repoAdmin</code> is given to the workload identity's service account for reading, writing, and deleting container images from GAR</li>
-                                <li><code>compute.instanceAdmin.v1</code> is given twice, one for each compute engine, in order to allow SSH connection to the compute instance (this one was weird for me, administrator seems excessive, but this is what the instructions in <a href="https://cloud.google.com/compute/docs/access/iam#connectinginstanceadmin">Google's documentation</a> say, and it wouldn't work otherwise).</li>
-                                <li><code>compute.viewer</code> is given on the project level, this is also required for GitHub to be able to attempt a connection with SSH by using gcloud, otherwise it woulnd't be able to find the machine and the SSH attempt would fail.</li>
-                                <li><code>iam.serviceAccountUser</code> is given to the GitHub workload identity service account, which connects it to the machines' service account (more on that later), this is another (somewhat strange) requirement by Google, which allows GitHub to act on behalf of the machine's service account.</li>
-                                <li><code>iap.tunnelResourceAccessor</code> is given in order to allow creating an SSH tunnel towards the machines, which as mentioned before, have FW ingress rules that allow IAP to connect to them.</li>
-                            </ul>
-                            <li><b>Compute Instance Permissions</b> - allows a service account that is attached to the servers to interact with resources. This service account has the same permissions of the local development service account, with a few additons:</li>
-                            <ul>
-                                <li><code>artifactregistry.reader</code> allows the servers to pull container images from GAR.</li>
-                                <li><code>iam.serviceAccountTokenCreator</code> allows the backend server to sign tokens for the temporary URLs.</li>
-                            </ul>
-                        </ul>
-                        And with that, all resources have the minimal permissions that allow them to do exactly what they need, and there's compliance with GCP's best practices, hurray!
+                        As explained above, all of the infrastructure was provisioned by using Terraform, there was no use of GCP' portal (Or console as they call it for some reason).<br>
+                        The code was rewrote from scratch for two reason - because of the usage of GCP's Python client libraries and because I can make the code cleaner, since my code abilities improved since last time.
                     </p>
                 </div>
-        </div>
-        <div id="Summary">
+            </div>
+            <div>
+                <div>
+                    <h2>How Does This Work</h2>
+                </div>
+                <div>
+                    <h3>
+                        Overview
+                    </h3>
+                </div>
+                <div>
+                    <p>
+                        This application consists of a frontend service (a VM accessible from the internet, that runs a docker-container) and a backend service (the VM inaccessible from the internet, that also runs a docker-container).<br>
+                        Only the backend server is able to access the application's resources (the BuckCat).<br>
+                        The backend and frontend services communicate with each other by using GCP's Pub/Sub service, which allows the backend service to be completely isolated regarding ingress traffic (with the exception of SSH from my home network).
+                    </p>
+                    <p>
+                        The general idea of the solution works as such:
+                    </p>
+                    <div id="grid" class="container">
+                        <img class="imgSmall" src="{{ solution_image }}" alt="">
+                    </div>
+                    <div style="text-align: center;"> Click the image in order to view it at full size.</div>
+                    <p>
+                        <ul>
+                            <li>User reaches the frontend service from the internet.</li>
+                            <li>The frontend server sends the user this web page.</li>
+                            <li>When the user clicks the "Pull Cat" button, the frontend server sends a request to the backend server through a Pub/Sub topic for cat requests.</li>
+                            <li>The backend server listens for messages in the Pub/Sub topic, creates a signed temporary URL for the required cat, and sends it back to the frontend server through another Pub/Sub topic for cat URLs.</li>
+                            <li>The frontend server presents the image to the user by using the temporary URL.</li>
+                        </ul>
+                    </p>
+                </div>
+                <div>
+                    <h3>
+                        A Deeper Dive
+                    </h3>
+                </div>
+                <div>
+                    <p>
+                        Now it's possible to look into each component indvidually, let's use this table:
+                    </p>
+                    <p>
+                        <table>
+                            <tr>
+                                <th>Frontend service</th>
+                                <th>Backend service</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <ul>
+                                        <li>Runs on an e2-micro VM that is based on COS Cloud, a Linux distribution optimized for running containers.</li>
+                                        <li>Runs a container with an application written in Python, HTML and CSS:
+                                        <li>Uses Flask and GCP's client Libraries.</li>
+                                        <li>When the "Pull Cat" button is clicked, sends a cat request to the backend service through GCP Pub/Sub through a 'cats requests' topic.</li>
+                                        <li>Pulls a cat URL from the "cats URLs" Pub/Sub topic, and uses it to present the cat to the user.</li>
+                                        <li>Is within a Frontend VPC (Virtual Private Cloud) with a FW that allows HTTP requests from the internet, IAP (Identity-Aware Proxy) access, and SSH from my own home network.</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Runs on an e2-micro VM that is based on COS Cloud, a Linux distribution optimized for running containers.</li>
+                                        <li>Is assigned an IAM (GCP's Identity & Access Management) role that allows it to read information from the BuckCat and sign tokens.</li>
+                                        <li>Runs a container with an application written in Python:</li>
+                                        <li>Uses GCP's Python Client Library, which runs on a conatiner.</li>
+                                        <li>Sends signed blob URLs to frontend with GCP Pub/Sub 'cats URLs' topic.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                    </p>
+                </div>
+                <div>
+                    <div>
+                        <h3>
+                            Automation - CI/CD Pipelines with GitHub Actions and Google Artifactory Registry
+                        </h3>
+                    </div>
+                    <div>
+                        <p>
+                            Deploying changes in the application manually is tedious, so a CI/CD process makes things quick and easy.
+                        </p>
+                        <p>
+                            The existing pipelines were split into frontend and backend pipelines (before that they were the same pipelines), and rewritten to integrate with GCP.<br>
+                            The CD process is a bit more convoluted then normal regarding deployment, since the project utilizes conatiners that run inside of VMS.<br>
+                            It would've been a simpler process if the project was based on Kubernetes or GCP Run (which would simply require restarting the service).<br>
+                            This decision was made out of pricing considerations, more on that later.
+                        </p>
+                        <p>
+                            The CI/CD process was created with four YAML files that run in GitHub Actions:<br>
+                            <ul>
+                                <li>The CI pipelines run when a new commit is pushed to the main branch in GitHub, depending on the directories that the commit modified. They container images and push them to GAR.</li>
+                                <li>The CD pipelines runs when the CI pipelines are completed, they connect with SSH to each service through IAP, and tells it to run a bash script.</li>
+                                <li>The CD pipelines stop the running container, prune all inactive containers, prune all inactive images, and runs the latest image (which triggers an automatic pull).</li>
+                            </ul>
+                        </p>
+                        <p>
+                            <b>CI Pipelines Steps</b>
+                            <ul>
+                                <li>Run when a new commit is added to the main branch to the respective frontend or backend directory, run on an Ubuntu server.</li>
+                                <li>Checkout the latest commit on the main branch.</li>
+                                <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
+                                <li>Login to GAR by using the workload identity service account.</li>
+                                <li>Build, tag, and push the respective container image to GAR with Docker Compose.</li>
+                                <li>Unrelated note - old untagged images are deleted automatically by GAR by using a cleanup policy, that is defined with Terraform as part of the resource.</li>
+                            </ul>
+                        </p>
+                        <p>
+                            <b>CD Pipelines Steps</b>
+                            <ul>
+                                <li>Run when the respective CI Pipeline is done successfully, run on an Ubuntu server.</li>
+                                <li>Checkout the latest commit on the main branch.</li>
+                                <li>Auhthenticate to GCP by using a workload identity federation that impersonates a service account for short-term tokens.</li>
+                                <li>SSH to the respective machine through IAP, stop the running container, prune all containers and images.</li>
+                                <li>Pull and run the latest container image.</li>
+                            </ul>
+                        </p>
+                        <p>
+                            The CI/CD YAML files can be found <a href="https://github.com/NoamVH/BuckCat/tree/main/.github/workflows">here</a>.
+                        </p>
+                    </div>
+                    <div>
+                        <h3>
+                            Identity and Access Management
+                        </h3>
+                    </div>
+                    <div>
+                        <p>
+                            One of the goals of the project was to comply with security best-practices as much as possible. Unfortunately, there are many 'guides' on the internet (I'm looking at YOU Medium, literally the hub of mediocracy),<br>
+                            that spread some simple 'solutions', that while they are using the least secure methods possible, that may be good for beginners who want to experiment, but many of these 'solutoins' also get to production environments.
+                        </p>
+                        <p>
+                            Google's documentation states* the best practices of different processes and components, as well as the predefined roles that exist for each resource and their perimssions.<br>
+                            The IAM roles divide to three categories:
+                            <ul>
+                                <li><b>Development Permissions</b> - a service account used for local testing.</li>
+                                <ul>
+                                    <li><code>storage.objectViewer</code> - allows viewing and downloading a bucket's contents.</li>
+                                    <li><code>pubsub.subscriber</code> and <code>pubsub.publisher</code> allows reading and writing messages to GCP Pub/Sub topics.</li>
+                                </ul>
+                                <li><b>Workload Identity Federation</b> - allows GitHub actions (or other on-premises/multi-cloud resources) to authenticate with GCP, the main advantage of this practice is that no credentials need to be taken out of GCP (<a href="https://cloud.google.com/iam/docs/workload-identity-federation">Reference</a>).</li>
+                                <ul>
+                                    <li>The workload identity is recognized by two attributes, which are defined by two assertions - <code>assertion.repository_owner_id</code> and <code>assertion.repository_id</code> this limits authentication to the BuckCat's code repository only.</li>
+                                    <li>The workload identity has a dedicated service account that is attached to it, which is done with the <code>google_service_account_iam_member</code> Terraform resource, the role that is defined for that resource is <code>iam.workloadIdentityUser</code>.</li>
+                                    <li><code>artifatregistry.repoAdmin</code> is given to the workload identity's service account for reading, writing, and deleting container images from GAR</li>
+                                    <li><code>compute.instanceAdmin.v1</code> is given twice, one for each compute engine, in order to allow SSH connection to the compute instance (this one was weird for me, administrator seems excessive, but this is what the instructions in <a href="https://cloud.google.com/compute/docs/access/iam#connectinginstanceadmin">Google's documentation</a> say, and it wouldn't work otherwise).</li>
+                                    <li><code>compute.viewer</code> is given on the project level, this is also required for GitHub to be able to attempt a connection with SSH by using gcloud, otherwise it woulnd't be able to find the machine and the SSH attempt would fail.</li>
+                                    <li><code>iam.serviceAccountUser</code> is given to the GitHub workload identity service account, which connects it to the machines' service account (more on that later), this is another (somewhat strange) requirement by Google, which allows GitHub to act on behalf of the machine's service account.</li>
+                                    <li><code>iap.tunnelResourceAccessor</code> is given in order to allow creating an SSH tunnel towards the machines, which as mentioned before, have FW ingress rules that allow IAP to connect to them.</li>
+                                </ul>
+                                <li><b>Compute Instance Permissions</b> - allows a service account that is attached to the servers to interact with resources. This service account has the same permissions of the local development service account, with a few additons:</li>
+                                <ul>
+                                    <li><code>artifactregistry.reader</code> allows the servers to pull container images from GAR.</li>
+                                    <li><code>iam.serviceAccountTokenCreator</code> allows the backend server to sign tokens for the temporary URLs.</li>
+                                </ul>
+                            </ul>
+                            And with that, all resources have the minimal permissions that allow them to do exactly what they need, and there's compliance with GCP's best practices, hurray!
+                        </p>
+                    </div>
+            </div>
+            <div>
+                <div>
+                    <h2>
+                        Summary
+                    </h2>
+                </div>
+                <div>
+                    <p>
+                        <ul>
+                            <li>This original project consisted of an application that was deployed on AWS, the goal of the project was to get familiar with the AWS environment.</li>
+                            <li>For the old explanation about the original project, see <a href="/aws-explanation">here</a>, the original code can also be found in a directory in the repository <a href="https://github.com/NoamVH/BuckCat/tree/main/AWS">here</a>.</li>
+                            <li>The also include a CI/CD process which makes development comfortable.</li>
+                            <li>The current project, was done within about three work days during November 2024, with semi-focus, whenever free time was available, on the original project in 2023 I was unemployed.</li>
+                            <li>Most of that time was spent on configuring roles on IAM and figuring out Google's practices, rather than development.</li>
+                            <li>This is the fourth version of the project, which deploys it on GCP by using Terraform, while complying with best-practices.</li>
+                            <li>The project's source code can be found on <a href="https://github.com/NoamVH/BuckCat">GitHub</a>.</li>
+                            <li>If you have any questions or comments, or are hiring, you can reach me via my <a href="https://www.linkedin.com/in/noamvh/">LinkedIn Profile.</a></li>
+                            <li>If you want to click on the button more and see more cats, you can go back <a href="/">here</a>!</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
             <div>
                 <h2>
-                    Summary
+                    Final Thoughts
                 </h2>
             </div>
-            <div id="Summary">
-                <p>
-                    <ul>
-                        <li>This original project consisted of an application that was deployed on AWS, the goal of the project was to get familiar with the AWS environment.</li>
-                        <li>For the old explanation about the original project, see <a href="/aws-explanation">here</a>, the original code can also be found in a directory in the repository <a href="https://github.com/NoamVH/BuckCat/tree/main/AWS">here</a>.</li>
-                        <li>The also include a CI/CD process which makes development comfortable.</li>
-                        <li>The current project, was done within about three work days during November 2024, with semi-focus, whenever free time was available, on the original project in 2023 I was unemployed.</li>
-                        <li>Most of that time was spent on configuring roles on IAM and figuring out Google's practices, rather than development.</li>
-                        <li>This is the fourth version of the project, which deploys it on GCP by using Terraform, while complying with best-practices.</li>
-                        <li>The project's source code can be found on <a href="https://github.com/NoamVH/BuckCat">GitHub</a>.</li>
-                        <li>If you have any questions or comments, or are hiring, you can reach me via my <a href="https://www.linkedin.com/in/noamvh/">LinkedIn Profile.</a></li>
-                        <li>If you want to click on the button more and see more cats, you can go back <a href="/">here</a>!</li>
-                    </ul>
-                </p>
-            </div>
-        </div>
-        <div>
-            <h2>
-                Final Thoughts
-            </h2>
-        </div>
-        <div id="FinalThoughts">
-            <p>
-                TBD.
-            </p>
-        </div>
-    </div>
-        <div id="Acknowledgement">
             <div>
-                <h2>
-                    Acknowledgement
-                </h2>
+                <p>
+                    TBD.
+                </p>
             </div>
-            <div id="Acknowledgement">
-                <p>
-                    I would like to thank:
-                </p>
-                <p>
-                    <ul>
-                        <li>Roi - for inspiring this project (<a href="https://www.linkedin.com/in/roi-shraga/">LinkedIn</a>).</li>
-                        <li>Tal - for technical advice and existing in general (<a href="https://www.linkedin.com/in/reverser/">LinkedIn</a>).</li>
-                    </ul>
-                </p>
+        </div>
+        </div>
+            <div>
+                <div>
+                    <h2>
+                        Acknowledgement
+                    </h2>
+                </div>
+                <div>
+                    <p>
+                        I would like to thank:
+                    </p>
+                    <p>
+                        <ul>
+                            <li>Roi - for inspiring this project (<a href="https://www.linkedin.com/in/roi-shraga/">LinkedIn</a>).</li>
+                            <li>Tal - for technical advice and existing in general (<a href="https://www.linkedin.com/in/reverser/">LinkedIn</a> | <a href="https://taltechtreks.com/">Blog</a>  | <a href="https://bsky.app/profile/taltechtreks.com"> BlueSky</a>).</li>
+                        </ul>
+                    </p>
+                </div>
             </div>
         </div>
     </div>

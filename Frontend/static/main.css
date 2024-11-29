@@ -4,13 +4,23 @@ body {
     color: whitesmoke;
 }
 
-#main {
-	width: 500px;
+#Main {
 	overflow: hidden;
+	padding-right: 25%;
+	padding-left: 25%;
 }
 
-#LeftSide {
-	float:left;
+#MainPageMain {
+	overflow: hidden;
+	padding-right: 35%;
+	padding-left: 35%;
+	text-align: center;
+}
+
+#ThisIsABucket {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .CatButton {
@@ -36,32 +46,81 @@ body {
 	top:1px;
 }
 
-#CatFormDiv {
-	display: flex;
-	justify-content: center;
-	padding-right:250px
-}
-
 #CatBox {
-	height: 600px;	
+	height: 600px;
+	border:1px solid black;
+	background-color: #282d33;
 }
 
 #CatPic {
     width: auto;
     max-height: 600px;
-	padding-left:200px;
-}
-
-#Introduction, #Overview, #Summary #ADeeperDive #Automation #IAM #Summary #FinalThoughts #Acknowledgement {
-	width:66%
 }
 
 table, th, td {
 	border:1px solid whitesmoke;
 	border-collapse: collapse;
+	font-size: 15px;
+	padding-left: 10px;
+	padding-right: 10px;
+
 }
 
 code {
 	font-size: 16px;
 	background-color: #282d33;
+}
+
+#solution img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+.container {
+	width: auto;
+	height: auto;
+	border: 1px solid black;
+	overflow: hidden;
+}
+
+.container img {
+	width: 100%;
+	height: auto;
+	display: block;
+	
+}
+
+#overlay{
+    position: fixed; 
+    width: 100%; 
+    height: 100%; 
+    top: 0px; 
+    left: 0px; 
+    background-color: #000; 
+    opacity: 0.7;
+    filter: alpha(opacity = 70) !important;
+    display: none;
+    z-index: 100;
+    
+}
+
+#overlayContent{
+    position: fixed; 
+    text-align: center;
+    display: none;
+    overflow: hidden;
+    z-index: 100;
+	padding-top: 1%;
+	margin-inline: auto;
+	padding-left: 6%;
+	padding-bottom: 10%;
+}
+
+#contentGallery{
+    margin: 0px auto;
+}
+
+#imgBig, #imgSmall{
+    cursor: pointer;
 }
