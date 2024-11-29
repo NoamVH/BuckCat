@@ -42,8 +42,8 @@ jobs:
           zone: ${{env.ZONE}}
           ssh_private_key: '${{secrets.FRONTEND_SSH_KEY}}'
           command: |
-            docker stop $(docker ps -q)
-            docker container prune -f
-            docker image prune -a -f
-            docker-credential-gcr configure-docker --registries=us-east1-docker.pkg.dev
-            docker run -d -p 80:80 us-east1-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest
+            sudo docker stop $(docker ps -q)
+            sudo docker container prune -f
+            sudo docker image prune -a -f
+            sudo docker-credential-gcr configure-docker --registries=us-east1-docker.pkg.dev
+            sudo docker run -d -p 80:80 us-east1-docker.pkg.dev/${{env.PROJECT_ID}}/buckcat-registry/buckcat-frontend:latest

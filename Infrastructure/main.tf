@@ -42,7 +42,8 @@ resource "google_compute_instance" "buckcat_frontend_instance" {
 
   boot_disk {
     initialize_params {
-      image = "cos-cloud/cos-stable"
+      # image = "cos-cloud/cos-stable"
+      image = "debian-cloud/debian-12"
     }
   }
 
@@ -58,6 +59,12 @@ resource "google_compute_instance" "buckcat_frontend_instance" {
     email  = google_service_account.servers_service_account.email
     scopes = ["cloud-platform"]
   }
+
+  metadata_startup_script = <<-EOF
+  sudo apt-get install docker.io -y
+  gcloud auth configure-docker us-east1-docker.pkg.dev
+  sudo docker run -d -p 80:80 us-east1-docker.pkg.dev/${var.project}/buckcat-registry/buckcat-frontend:latest
+  EOF
 }
 
 resource "google_compute_instance" "buckcat_backend_instance" {
@@ -67,7 +74,7 @@ resource "google_compute_instance" "buckcat_backend_instance" {
 
   boot_disk {
     initialize_params {
-      image = "cos-cloud/cos-stable"
+      image = "debian-cloud/debian-12"
     }
   }
 
@@ -83,4 +90,10 @@ resource "google_compute_instance" "buckcat_backend_instance" {
     email  = google_service_account.servers_service_account.email
     scopes = ["cloud-platform"]
   }
+
+  metadata_startup_script = <<-EOF
+  sudo apt-get install docker.io -y
+  gcloud auth configure-docker us-east1-docker.pkg.dev
+  sudo docker run -d us-east1-docker.pkg.dev/${var.project}/buckcat-registry/buckcat-backend:latest
+  EOF
 }
