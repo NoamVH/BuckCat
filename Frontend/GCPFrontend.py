@@ -2,8 +2,9 @@ import logging
 import os                                # For file handling.
 import random                            # For random strings.
 import string                            # For random strings.
-from google.cloud import pubsub_v1       # For GCP Pub/Sub clients.
-from flask import Flask, render_template # Flask library.
+from google.cloud import pubsub_v1       # https://cloud.google.com/python/docs/reference/pubsub/latest
+from flask import Flask, render_template # https://flask.palletsprojects.com/en/stable/quickstart/
+from waitress import serve               # https://flask.palletsprojects.com/en/stable/deploying/waitress/
 
 
 # # Uncomment for local (non-containerized) debugging.
@@ -122,7 +123,7 @@ def main():
     # The debug argument allows continous running of the webapp when changing something in the files and saving, the app will be refreshed automatically.
     # The port argument is optional, the default value is 5000.
     # app.run(debug = True, host = '0.0.0.0')
-    app.run(debug = False, host = '0.0.0.0', port = 80)
+    serve(app, host='0.0.0.0', port=5000)
 
 if __name__  == '__main__':
     main()
