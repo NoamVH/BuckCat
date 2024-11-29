@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
@@ -20,35 +21,38 @@
     <meta property="og:type" content="website" />
 </head>
 <body>
-    <div id="Title">
-        <h1>Hello User!</h1>
-    </div>
-    <div id="Main">
-        <div id="LeftSide">
-            <div>
-                <img src="{{ url_for('static', filename='Images/thisisabucket.gif') }}" id="ThisIsABucket">
-            </div>
-            <div>
-                <h2>This bucket has cats in it!! (Now on GCP with Terraform)</h2>
-            </div>
-            <div id="CatFormDiv">
-                    <form method="post" action="/request_cat" id="CatForm">
-                        <input type="hidden" name="animal" value="cat">
-                        <input type="submit" class="CatButton" value="Pull a Cat">
-                    </form>
-            </div>
-            <div>
-                <p>
-                    <h3>What's happening here? Click <a href="/gcp-explanation">here</a> to find out!</h3>
-                </p>       
-            </div>
+    <div id="MainPageMain">
+        <div id="Title">
+            <h1>Hello User!</h1>
         </div>
-        <div id="CatBox">
-            <p>
-                {% if url %}
-                <img src="{{ url }}" id="CatPic">
-                {% endif %}
-            </p>
+        <div>
+            <div>
+                <div>
+                    <img src="{{ url_for('static', filename='Images/thisisabucket.gif') }}" id="ThisIsABucket">
+                </div>
+                
+                <div>
+                    <h2>This bucket has cats in it!! <br> (Now on GCP with Terraform)</h2>
+                </div>
+                <div id="CatBox">
+                    {% if url %}
+                    <img src="{{ url }}" id="CatPic", alt="">
+                    {% endif %}
+                </div>
+                <div id="CatFormDiv">
+                    <p>
+                        <form method="post" action="/request_cat" id="CatForm">
+                            <input type="hidden" name="animal" value="cat">
+                            <input type="submit" class="CatButton" value="Pull a Cat">
+                        </form>
+                    </p>    
+                </div>
+                <div>
+                    <p>
+                        <h3>What's happening here? Click <a href="/gcp-explanation">here</a> to find out!</h3>
+                    </p>       
+                </div>
+            </div>
         </div>
     </div>
 </body>

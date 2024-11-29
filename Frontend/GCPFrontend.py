@@ -6,7 +6,7 @@ from google.cloud import pubsub_v1       # For GCP Pub/Sub clients.
 from flask import Flask, render_template # Flask library.
 
 
-# Uncomment for local (non-containerized) debugging.
+# # Uncomment for local (non-containerized) debugging.
 # from dotenv import load_dotenv  
 # env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 # load_dotenv(dotenv_path=env_path)
@@ -96,7 +96,7 @@ def request_cat():
 
 # Explanation page.
 @app.route('/gcp-explanation')
-def explanation_page():
+def gcp_explanation_page():
     solution_image = app.config['GCP_SOLUTION_IMAGE']
     return render_template('explanation-gcp.html', solution_image = solution_image)
 
@@ -111,8 +111,8 @@ def main():
     subscriber_client = initialize_subscriber_client()
     publisher_client = initialize_publisher_client()
     
-    gcp_solution_image = os.path.join('static', 'Images', 'aws-solution.png')
-    aws_solution_image = os.path.join('static', 'Images', 'gcp-solution.png')
+    aws_solution_image = os.path.join('static', 'Images', 'aws-solution.png')
+    gcp_solution_image = os.path.join('static', 'Images', 'gcp-solution.png')
 
     app.config['SUBSCRIBER_CLIENT'] = subscriber_client
     app.config['PUBLISHER_CLIENT'] = publisher_client
