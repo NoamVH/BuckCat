@@ -7,21 +7,25 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='overlay.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='explanation.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
         the argument for the static folder and the name of the file itself need to be set.
     -->
-    <title>Buck-Cat - Explanation</title>
+    <title>BuckCat - Explanation</title>
 </head>
 <body>
-    <div id="overlay"></div>
-    <div id="overlayContent">
-        <img id="imgBig" src="" alt="">
+    <div class="overlay"></div>
+    
+    <div class="overlayContent">
+        <img class="imgBig" src="" alt="">
+        
         <div style="font-size: 22px; background-color: rgb(26, 25, 25);">
             Click the image again in order to close the overlay.
         </div>
     </div>
+
     <div id="Main">
         <div>
             <h1>
@@ -54,11 +58,11 @@
                         Recently, I decided to bring the project back to life on Google Cloud Platform (GCP), with the same goals, only 100% based IaC with Terraform, without using the portal (or "Console" as Google call it for some reason), or the gcloud CLI even once.
                     </p>
                     <p>
-                        The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure at the time.<br>
-                        This time the idea was to get myself familiar with GCP, while making all of the required provisioning with Terraform, while keeping security best practices as much as possible.<br>
+                        The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure at the time.
+                        This time the idea was to get myself familiar with GCP, while making all of the required provisioning with Terraform, while keeping security best practices as much as possible.
                     </p>
                     <p> 
-                        The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
+                        The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application.
                     </p>
                     <p>
                         It should be noted that the main goal of this little project is the environment and learning how to work with AWS/GCP, the application was a secondary goal.
@@ -71,7 +75,7 @@
                 </div>
                 <div>
                     <p>
-                        As explained above, all of the infrastructure was provisioned by using Terraform, there was no use of GCP' portal (Or console as they call it for some reason).<br>
+                        As explained above, all of the infrastructure was provisioned by using Terraform, there was no use of GCP' portal (Or console as they call it for some reason).
                         The code was rewrote from scratch for two reason - because of the usage of GCP's Python client libraries and because I can make the code cleaner, since my code abilities improved since last time.
                     </p>
                 </div>
@@ -87,8 +91,8 @@
                 </div>
                 <div>
                     <p>
-                        This application consists of a frontend service (a VM accessible from the internet, that runs a docker-container) and a backend service (the VM inaccessible from the internet, that also runs a docker-container).<br>
-                        Only the backend server is able to access the application's resources (the BuckCat).<br>
+                        This application consists of a frontend service (a VM accessible from the internet, that runs a docker-container) and a backend service (the VM inaccessible from the internet, that also runs a docker-container).
+                        Only the backend server is able to access the application's resources (the BuckCat).
                         The backend and frontend services communicate with each other by using GCP's Pub/Sub service, which allows the backend service to be completely isolated regarding ingress traffic (with the exception of SSH from my home network).
                     </p>
                     <p>
@@ -158,9 +162,9 @@
                             Deploying changes in the application manually is tedious, so a CI/CD process makes things quick and easy.
                         </p>
                         <p>
-                            The existing pipelines were split into frontend and backend pipelines (before that they were the same pipelines), and rewritten to integrate with GCP.<br>
-                            The CD process is a bit more convoluted then normal regarding deployment, since the project utilizes conatiners that run inside of VMS.<br>
-                            It would've been a simpler process if the project was based on Kubernetes or GCP Run (which would simply require restarting the service).<br>
+                            The existing pipelines were split into frontend and backend pipelines (before that they were the same pipelines), and rewritten to integrate with GCP.
+                            The CD process is a bit more convoluted then normal regarding deployment, since the project utilizes conatiners that run inside of VMS.
+                            It would've been a simpler process if the project was based on Kubernetes or GCP Run (which would simply require restarting the service).
                             This decision was made out of pricing considerations, more on that later.
                         </p>
                         <p>
@@ -264,8 +268,40 @@
             </div>
             <div>
                 <p>
-                    "Ugh..." <br>
-                    Is my main thought while working on the recreation of this project.
+                    "Ugh". <br>
+                    Has been my main thought while working on the recreation of this project on GCP. I'm writing this after I finished configuring automatic startup scripts for the two VMs in Terraform. Which was quite annoying.
+                </p>
+                <p>
+                    This project isn't too complicated, and is comprised of fairly simple parts. When I saw that GCP are offering a free demo with ~$300 to use for three months, it heightened my expectations (I still tried expenses to be as little as possible).
+                    Somehow, GCP got me quite frustrated, since even though I followed the documentation as much as possible, I would still get stuck at some parts, either due to documentation not mentioning important information, not being clear, or some components not being fully integrated.
+                </p>
+                <p>
+                    I would say that the most frustrating aspect of this is that since the project is simple, I shouldn't get stuck at so many different steps, which heightens the frustration even more, as a potential customers that tries to demo GCP for himself, I'd expect a much better user experience.
+                </p>
+                <p>
+                    Another aspect of that frustration is the fact that many of GCP's requirements aren't intuitive, or that they go against other things the GCP decided to design:
+                </p>
+                <p>
+                    <ul>
+                        <li>CORS-Cloud is a special VM image designed for running containers - but it can't run a start-up script for authenticating Docker as root, since the filesystem is read-only, and the "Run Container" configuration isn't available in Terraform. So I had to use Debian and install Docker from scratch as part of the startup script.</li>
+                        <li>GCP's documentation set direct permissions for workload identity federation as best practice, over service account impersonation - only to discover that most permissions required for this (again, simple) project can only be given to a service account, not directly, which also added to a few hours of frustration.</li>
+                        <li>GCP have the <code>gcloud ssh</code> command, that saves the need to create a private SSH key and having to protect it - However, <a href="https://github.com/google-github-actions/ssh-compute">Google's SSH Compute GitHub Action</a> requires a private SSH key, even though it essentially runs the <code>gcloud ssh</code> command.</li>
+                        <li>GCP has an OSLogin role for Compute - but SSH connection requires <code>compute.instanceAdmin.v1</code> for some reason, along with other requirements <a href="https://cloud.google.com/compute/docs/access/iam#the_serviceaccountuser_role">that are mentioned in the documentation</a> but makes no intuitive sense.</li>
+                    </ul>
+                </p>
+                <p>
+                    These are a few of the main frustrations I experienced while trying to work out all of the permissions and intergrations, however, I don't recall at all having so much trouble while working with AWS, and I never experienced problems like that when working with Azure in my recent job, which makes me think that I myself might not (completely) be the problem, but GCP being either weird, or not doing something right (at least from my current perspective).
+                </p>
+                <p>
+                    Aside of that, the project was fun and enriching, and got me to get to know GCP and play around with Terraform, while looking at cat pictures from time to time.
+                </p>
+                <p>
+                    If I were a rich man (yabidabidabadabidabudabidabuda), I'd be able to make an even more simple set up that would prevent all of the frustration described above:
+                    <ul>
+                        <li>Apply the containers on GCP Cloud Run, which would reduce the need for provision VMs, the containers would start by the service, and updating the conatiner's image would simply require restarting them.</li>
+                        <li>Apply the containers in Kubernetes, and use ArgoCD for GitOps, deployment would be done automatically, and updates would be done by modifying the requires kustomization files. Unfortunately, there doesn't seem to be a Minikube or k3s type of Kubernetes provision like the one in AWS.</li>
+                        <li>Ideally, for this project's size, it would be best if the "Run Container" metadata configuration was available in Terraform, since then a simple restart to the VM would be sufficient for updating the container in the COS VM.</li>
+                    </ul>
                 </p>
             </div>
         </div>

@@ -7,6 +7,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='overlay.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='explanation.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
@@ -15,9 +16,9 @@
     <title>BuckCat - Explanation</title>
 </head>
 <body>
-    <div id="overlay"></div>
-    <div id="overlayContent">
-        <img id="imgBig" src="" alt="">
+    <div class="overlay"></div>
+    <div class="overlayContent">
+        <img class="imgBig" src="" alt="">
         <div style="font-size: 22px; background-color: rgb(26, 25, 25);">
             Click the image again in order to close the overlay.
         </div>
@@ -92,7 +93,7 @@
                 <div id="Overview">
                     <p>
                         I realized the environment can work as an application with a Front-End Server (the VM accessible from the internet) and a Back-End Server (the VM inaccessible from the internet).<br>
-                        Only the Back-End server will be able to access the application's resources (the KMS and S3 bucket). <br>
+                        Only the Back-End server will be able to access the application's resources (the KMS and S3 bucket).
                     </p>
                     <p>
                         The general idea of the solution works as such:
