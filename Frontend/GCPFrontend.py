@@ -88,7 +88,7 @@ def request_cat():
 
     return render_template("homepage.html", url=cat_url or "No cat URL found")
 
-# Explanation pageד.
+# Explanation page.
 @app.route('/gcp-explanation')
 def gcp_explanation_page():
     solution_image = app.config['GCP_SOLUTION_IMAGE']
