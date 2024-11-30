@@ -7,6 +7,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='overlay.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='explanation.css')}}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='CatFavicon.png') }}">
     <!--
         Set a link to a stylesheet as you would for any CSS file, but use the url_for method to be rendered by Flask when initializing the webapp,
@@ -15,9 +16,9 @@
     <title>BuckCat - Explanation</title>
 </head>
 <body>
-    <div id="overlay"></div>
-    <div id="overlayContent">
-        <img id="imgBig" src="" alt="">
+    <div class="overlay"></div>
+    <div class="overlayContent">
+        <img class="imgBig" src="" alt="">
         <div style="font-size: 22px; background-color: rgb(26, 25, 25);">
             Click the image again in order to close the overlay.
         </div>
@@ -53,7 +54,9 @@
                     </p>
                     <p>
                         The idea of the challenge was to get myself familiar with AWS, after getting some courses and experience with Azure.<br>
-                        The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application. <br>
+                        The challenge itself seemed simple enough, but it felt a little bit "empty" just provisioning the environment, so I decided to give it some life with this simple application.
+                    </p>
+                    <p>
                         It should be noted that the main goal of this little project is the environment and learning how to work with AWS, the application was a secondary goal, which is why this website or the code running it might seem a little bit sloppy.
                     </p>
                     <div>
@@ -63,7 +66,9 @@
                     </div>
                     <div>
                         <p>
-                            After uploading the application to the cloud for the first time, making changes to the application became a tedious effort.<br>
+                            After uploading the application to the cloud for the first time, making changes to the application became a tedious effort.
+                        </p>
+                        <p>
                             I used this as an opportunity to pass some more knowledge from Azure to AWS (in this case, applying what I learned on AZDO in AWS), as well as having updates a more comfortable process, for that CI/CD pipelines were added.
                             The full description is in the final section of this explanation page.
                         </p>
@@ -92,7 +97,7 @@
                 <div id="Overview">
                     <p>
                         I realized the environment can work as an application with a Front-End Server (the VM accessible from the internet) and a Back-End Server (the VM inaccessible from the internet).<br>
-                        Only the Back-End server will be able to access the application's resources (the KMS and S3 bucket). <br>
+                        Only the Back-End server will be able to access the application's resources (the KMS and S3 bucket).
                     </p>
                     <p>
                         The general idea of the solution works as such:
@@ -224,18 +229,26 @@
                     </div>
                     <div>
                         <p>
-                            As described in the introduction, deploying changes in the application became a tedious task.<br>
-                            Making changes required me to copy the application's files into the EC2 Instances by using SCP, and then connect using SSH, build the Docker images by using the dockerfiles, and run the containers.<br>
+                            As described in the introduction, deploying changes in the application became a tedious task.
+                        </p>
+                        <p>
+                            Making changes required me to copy the application's files into the EC2 Instances by using SCP, and then connect using SSH, build the Docker images by using the dockerfiles, and run the containers.
+                        </p>
+                        <p>
                             This wasn't very good and not fun at all. 
                         </p>
                         <p>
                             I took this as an opportunity to pass knowledge I had about CI/CD on Azure/AZDO and apply it with AWS (by using GitHub Actions).<br>
                             This CI/CD process is not quite a standard one, because it manages Docker in the EC2 instances with bash scripts saved in the EC2 instances, instead of deployment to Kubernetes or ECS.<br>
+                        </p>
+                        <p>
                             This decision was made out of pricing considerations, using Kubernetes or ECS (and by extention, Fargate), requires full payment for usage, while EC2 allows 750 active monthly hours for free per month.
                         </p>
                         <p>
-                            The next update to this application will use Minikube instead of Docker for deployment. For now, let's review the existing CI/CD process.<br>
-                            The CI/CD process was created with two YAML files that run in GitHub Actions, and two bash files that are saved in the EC2 instances (one for frontend and one for backend):<br>
+                            The next update to this application will use Minikube instead of Docker for deployment. For now, let's review the existing CI/CD process.
+                        </p>
+                        <p>
+                            The CI/CD process was created with two YAML files that run in GitHub Actions, and two bash files that are saved in the EC2 instances (one for frontend and one for backend):
                             <ul>
                                 <li>The CI Pipeline runs when a new commit is pushed to the main branch in GitHub, it builds two Docker images and pushes them to ECR, and then deletes untagged images.</li>
                                 <li>The CD Pipelines runs when the CI Pipeline is completed, it connect with SSH to the frontend server, and tells it to run a bash script.</li>
@@ -288,14 +301,22 @@
                     </div>
                     <div>
                         <p>
-                            Unfortunately, in order to allow the frontend and backend servers to pull images from ECR, the networks' ACLs had to allow all IPv4/TCP connections into both of their networks.<br>
-                            The reason for that, is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR in the inbound direction.<br>
+                            Unfortunately, in order to allow the frontend and backend servers to pull images from ECR, the networks' ACLs had to allow all IPv4/TCP connections into both of their networks.
+                        </p>
+                        <p>
+                            The reason for that, is that while the networks allow outbound HTTPS connections, there is no way to determine the port and IP address used by ECR in the inbound direction.
+                        </p>
+                        <p>
                             The solution for this would be using a NAT Gateway, and through that allow the ECR sessions, but since this service is not available for free, I went for the cheaper alternative.
                         </p>
                         <p>
                             However, out of curiosity, network service endpoints were deployed for ECR reachability, and those were connected to the instances' security groups, so while the networks themselves are open to the internet (at least for IPv4/TCP reachability),
-                            the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.<br>
-                            Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).<br>
+                            the instances themselves are not, so the main premise of the networking in this project remains somewhat intact.
+                        </p>
+                        <p>
+                            Service endpoints do cost money to use as well, but at a lower price than NAT gateways ($0.012/HR per VPC endpoint per AZ, whilst a NAT gateway goes for $0.052/HR per gateway).
+                        </p>
+                        <p>
                             There are two endpoints for the frontend server (one for ECR API and one for ECR DKR), and three endpoints for the backend server (ECR API, ECR DKR, and S3 reachability), which results in a total of $0.06/HR.
                         </p>
                     </div>

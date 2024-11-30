@@ -13,7 +13,7 @@ from waitress import serve               # https://flask.palletsprojects.com/en/
 # load_dotenv(dotenv_path=env_path)
 # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_FILE')
 
-# Global Variables
+
 PROJECT_ID                = os.getenv("PROJECT_ID")
 LOCATION_ID               = "us-east1"
 current_cat               = 0                        # For initial cat from the cat list.
@@ -29,19 +29,12 @@ LOGS_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
 #Initialize the application
 app = Flask(__name__)
 
+
 def initialize_publisher_client():
     return pubsub_v1.PublisherClient()
 
 def initialize_subscriber_client():
     return pubsub_v1.SubscriberClient()
-
-def create_random_deduplication_id():
-    '''
-    Creates a random string that is eight letters long
-    The string is used as a deduplication ID for GCP tasks.
-    '''
-    id_length = 8
-    return ''.join(random.choice(string.ascii_lowercase) for _ in range(id_length))
 
 def iterate_cats(current_cat, MAX_CATS):
     current_cat += 1
