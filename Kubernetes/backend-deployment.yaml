@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: buckcat-backend
+  namespace: buckcat-backend
+
+spec:
+  selector:
+    matchLabels:
+      buckcat-service: backend
+
+  replicas: 1
+
+  template:
+    metadata:
+      labels:
+        buckcat-service: backend
+
+    spec:
+      containers:
+      - name: buckcat-backend
+        image: us-east1-docker.pkg.dev/prefab-lamp-440513-v5/buckcat-registry/buckcat-backend:latest
+        ports:
+        - containerPort: 80
+          name: backend-http
