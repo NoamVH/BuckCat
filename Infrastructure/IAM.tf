@@ -166,3 +166,52 @@ resource "google_pubsub_topic_iam_member" "buckcat_instance_cats_urls_publisher"
   role   = "roles/pubsub.publisher"
   member = "serviceAccount:${google_service_account.servers_service_account.email}"
 }
+
+# GKE Permissions
+
+resource "google_service_account" "gke_service_account" {
+  account_id   = "gke-service-account"
+  display_name = "BuckCat GKE Service Account"
+}
+
+resource "google_project_iam_member" "gke_gar_reader" {
+  project = var.project
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_storage_bucket_iam_member" "gke_buckcat_reader" {
+  bucket = google_storage_bucket.buckcat.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_service_account_iam_member" "gke_buckcat_signer" {
+  service_account_id = google_service_account.gke_service_account.id
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_pubsub_subscription_iam_member" "gke_cats_requests_subscriber" {
+  subscription = google_pubsub_subscription.cats_requests_subscription.id
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_pubsub_topic_iam_member" "gke_cats_requests_publisher" {
+  topic  = google_pubsub_topic.cats_requests_topic.id
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_pubsub_subscription_iam_member" "gke_cats_urls_subscriber" {
+  subscription = google_pubsub_subscription.cats_urls_subscription.id
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_pubsub_topic_iam_member" "gke_cats_urls_publisher" {
+  topic  = google_pubsub_topic.cats_urls_topic.id
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.gke_service_account.email}"
+}

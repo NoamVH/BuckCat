@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: buckcat-frontend
+  namespace: buckcat-frontend
+
+spec:
+  selector:
+    matchLabels:
+      buckcat-service: frontend
+
+  replicas: 1
+
+  template:
+    metadata:
+      labels:
+        buckcat-service: frontend
+
+    spec:
+      containers:
+      - name: buckcat-frontend
+        image: us-east1-docker.pkg.dev/prefab-lamp-440513-v5/buckcat-registry/buckcat-frontend:latest
+        ports:
+        - containerPort: 80
+          name: frontend-http
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: buckcat-frontend
+  namespace: buckcat-frontend
+
+spec:
+  type: ClusterIP
+  selector:
+    buckcat-service: frontend
+
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: frontend-http
